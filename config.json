@@ -1,0 +1,32 @@
+{
+  "editor": "nvim",
+  "p5Version": "2",
+  "p5Source": "auto",
+  "p5LocalPath": "~/.config/sketch/p5.min.js",
+  "server": {
+    "port": 5173,
+    "openBrowser": true,
+    "browser": {
+      "path": "",
+      "args": []
+    }
+  },
+  "record": {
+    "port": 5174,
+    "fps": 60,
+    "total": 300,
+    "start": 0,
+    "crf": 14,
+    "codec": "vp9",
+    "preset": "slow",
+    "cpuUsed": "1",
+    "g": 15,
+    "pixelDensity": 1.0,
+    "browser": {
+      "path": "",
+      "args": []
+    }
+  },
+  "sketchDir": "~/Documents/sketches",
+  "outDir": "~/Documents/sketches/record"
+}

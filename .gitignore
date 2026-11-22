@@ -1,0 +1,38 @@
+# Build artifacts
+/bin/
+/release/
+sketch
+sketch.exe
+*.exe
+*.test
+*.out
+
+# Go
+vendor/
+
+# Logs
+*.log
+
+# Environment variables
+.env
+.env.*
+!.env.example
+*.local
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Editor
+.vscode/*
+!.vscode/extensions.json
+.idea/
+*.swp
+*.swo
+*~
+
+/p5/
+p5.js
+p5.min.js
+record/
