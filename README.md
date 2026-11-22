@@ -224,6 +224,8 @@ sketch
 
 On launch you select a mode with fzf.
 
+https://github.com/user-attachments/assets/37e20539-2a49-4cc4-a0ff-eb6a9a268570
+
 | Mode   | Description                                         |
 | ------ | --------------------------------------------------- |
 | today  | Open today’s sketch (creates a template if missing) |
