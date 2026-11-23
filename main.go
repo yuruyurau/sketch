@@ -392,6 +392,13 @@ func openEditor(editor, target, line string) {
 		} else {
 			args = append(args, target)
 		}
+	case "zed", "zeditor":
+		args = append(args, "--wait")
+		if line != "" {
+			args = append(args, target+":"+line)
+		} else {
+			args = append(args, target)
+		}
 	default:
 		if line != "" {
 			args = append(args, "+"+line)

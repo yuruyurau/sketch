@@ -27,6 +27,61 @@ A CLI tool for managing and editing p5.js sketches.
 - [nano](https://nano-editor.org/) / [micro](https://github.com/zyedidia/micro) / [edit](https://github.com/microsoft/edit)
 - [hx / helix](https://github.com/helix-editor/helix)
 - [fresh](https://github.com/sinelaw/fresh)
+- [zed / zeditor](https://zed.dev)
+
+<details>
+<summary>Zed configuration</summary>
+
+Set in `~/.config/sketch/config.json`:
+
+```json
+"editor": "zed"
+```
+
+(Use `"zeditor"` if that is the binary name on your system.)
+
+#### Launching sketch from inside Zed (recommended)
+
+Locations for `tasks.json` and `keymap.json`:
+
+- macOS / Linux: `~/.config/zed/`
+- Windows: `%APPDATA%\Zed\`
+- Project-local (all platforms): `.zed/`
+
+Example `tasks.json`:
+
+```json
+[
+  {
+    "label": "Sketch",
+    "command": "sketch",
+    "reveal": "always",
+    "reveal_target": "center",
+    "hide": "on_success",
+    "use_new_terminal": true
+  }
+]
+```
+
+Example `keymap.json`:
+
+```json
+[
+  {
+    "context": "Workspace",
+    "bindings": {
+      "space s": [
+        "task::Spawn",
+        { "task_name": "Sketch", "reveal_target": "center" }
+      ]
+    }
+  }
+]
+```
+
+> **Note**: `zed --wait` currently does not always block correctly when Zed is already running (single-instance behavior). Closing the file/tab may not return control to `sketch` until the whole Zed process exits. See [zed-industries/zed#54203](https://github.com/zed-industries/zed/issues/54203).
+
+</details>
 
 <details>
 <summary>Homebrew / Scoop / Winget</summary>

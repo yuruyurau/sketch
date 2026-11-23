@@ -27,6 +27,61 @@ p5.js のスケッチを管理・編集するための CLI ツール。
 - [nano](https://nano-editor.org/) / [micro](https://github.com/zyedidia/micro) / [edit](https://github.com/microsoft/edit)
 - [hx / helix](https://github.com/helix-editor/helix)
 - [fresh](https://github.com/sinelaw/fresh)
+- [zed / zeditor](https://zed.dev)
+
+<details>
+<summary>Zed の設定</summary>
+
+`~/.config/sketch/config.json` に以下を設定:
+
+```json
+"editor": "zed"
+```
+
+（環境によってはバイナリ名が `zeditor` の場合があるので、そのときは `"zeditor"` にしてください）
+
+#### Zed 内から sketch を起動する（推奨）
+
+`tasks.json` と `keymap.json` の場所:
+
+- macOS / Linux: `~/.config/zed/`
+- Windows: `%APPDATA%\Zed\`
+- プロジェクトローカル（全OS共通）: `.zed/`
+
+`tasks.json`:
+
+```json
+[
+  {
+    "label": "Sketch",
+    "command": "sketch",
+    "reveal": "always",
+    "reveal_target": "center",
+    "hide": "on_success",
+    "use_new_terminal": true
+  }
+]
+```
+
+`keymap.json`:
+
+```json
+[
+  {
+    "context": "Workspace",
+    "bindings": {
+      "space s": [
+        "task::Spawn",
+        { "task_name": "Sketch", "reveal_target": "center" }
+      ]
+    }
+  }
+]
+```
+
+> **注意**: すでに Zed が起動している状態だと、`zed --wait` が正しくブロックしない既知の挙動があります（タブを閉じてもプロセスが戻ってこない場合がある）。詳細は [zed-industries/zed#54203](https://github.com/zed-industries/zed/issues/54203) を参照。
+
+</details>
 
 <details>
 <summary>Homebrew / Scoop / Winget</summary>
