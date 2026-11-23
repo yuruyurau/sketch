@@ -50,7 +50,10 @@ A CLI tool for managing and editing p5.js sketches.
 
 ## Installation
 
-Download the appropriate zip from [releases](https://github.com/yuruyurau/sketch/releases) and extract it.
+Download the appropriate zip from [Releases](https://github.com/yuruyurau/sketch/releases) and extract it.
+
+Each zip includes the binary, `LICENSE`, and `config.json`.  
+A `checksums.txt` is also available for verification.
 
 ### Windows
 
@@ -74,22 +77,20 @@ After extracting, place `sketch.exe` in a directory that is on your PATH.
 
 ### macOS
 
-After extracting, grant execute permission and place it in a directory on your PATH.  
+After extracting, place the binary in a directory on your PATH.  
 If you downloaded it with a browser, also remove the quarantine attribute.
 
 ```bash
-chmod +x ./sketch
-xattr -d com.apple.quarantine ./sketch
-mv ./sketch /usr/local/bin/
+xattr -d com.apple.quarantine sketch
+mv sketch ~/.local/bin/
 ```
 
 ### Linux
 
-After extracting, grant execute permission and place it in a directory on your PATH.
+After extracting, place the binary in a directory on your PATH.
 
 ```bash
-chmod +x sketch
-mv sketch /usr/local/bin/
+mv sketch ~/.local/bin/
 ```
 
 ## Setup

@@ -48,7 +48,10 @@ p5.js のスケッチを管理・編集するための CLI ツール。
 
 ## インストール
 
-[releases](https://github.com/yuruyurau/sketch/releases) から環境に合った zip をダウンロードし、展開してください。
+[Releases](https://github.com/yuruyurau/sketch/releases) から環境に合った zip をダウンロードし、展開してください。
+
+各 zip にはバイナリ、`LICENSE`、`config.json` が含まれています。  
+検証用の `checksums.txt` も付属しています。
 
 ### Windows
 
@@ -72,22 +75,20 @@ p5.js のスケッチを管理・編集するための CLI ツール。
 
 ### macOS
 
-展開後、実行権限を付与し、パスの通ったディレクトリに配置してください。  
+展開後、パスの通ったディレクトリに配置してください。  
 ブラウザからダウンロードした場合は隔離属性も解除します。
 
 ```bash
-chmod +x ./sketch
-xattr -d com.apple.quarantine ./sketch
-mv ./sketch /usr/local/bin/
+xattr -d com.apple.quarantine sketch
+mv sketch ~/.local/bin/
 ```
 
 ### Linux
 
-展開後、実行権限を付与してパスの通ったディレクトリに配置してください。
+展開後、パスの通ったディレクトリに配置してください。
 
 ```bash
-chmod +x sketch
-mv sketch /usr/local/bin/
+mv sketch ~/.local/bin/
 ```
 
 ## セットアップ
