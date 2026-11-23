@@ -84,7 +84,7 @@ Locations for `tasks.json` and `keymap.json`:
 ]
 ```
 
-**`keymap.json`:**
+**`keymap.json` (to launch with `space s`):**
 
 ```json
 [
@@ -99,6 +99,14 @@ Locations for `tasks.json` and `keymap.json`:
   }
 ]
 ```
+
+#### Opening via Command Palette
+
+1. Press `Ctrl/Cmd+Shift+P`
+2. Type `task: spawn` and select it
+3. Choose `Sketch` from the list
+
+In Vim mode, you can also press `:` and type `task Sketch`.
 
 > **Note**: `zed --wait` currently does not always block correctly when Zed is already running (single-instance behavior). Closing the file/tab may not return control to `sketch` until the whole Zed process exits. See [zed-industries/zed#54203](https://github.com/zed-industries/zed/issues/54203).
 
@@ -174,7 +182,7 @@ This makes the terminal open as an editor tab, which is easier to maximize.
 
 #### Opening via Command Palette
 
-1. Press `Ctrl+Shift+P` (macOS: `Cmd+Shift+P`)
+1. Press `Ctrl/Cmd+Shift+P`
 2. Type `Tasks: Run Task`
 3. Select `Sketch`
 

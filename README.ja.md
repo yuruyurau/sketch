@@ -82,7 +82,7 @@ p5.js のスケッチを管理・編集するための CLI ツール。
 ]
 ```
 
-**`keymap.json`:**
+**`keymap.json` (`space s` で起動する場合):**
 
 ```json
 [
@@ -97,6 +97,14 @@ p5.js のスケッチを管理・編集するための CLI ツール。
   }
 ]
 ```
+
+#### コマンドパレットから開く
+
+1. `Ctrl/Cmd+Shift+P` を押す
+2. `task: spawn` と入力して選択
+3. 表示されたリストから `Sketch` を選ぶ
+
+Vim モードの場合は `:` を押して `task Sketch` と入力しても起動できます。
 
 > **注意**: すでに Zed が起動している状態だと、`zed --wait` が正しくブロックしない既知の挙動があります（タブを閉じてもプロセスが戻ってこない場合がある）。詳細は [zed-industries/zed#54203](https://github.com/zed-industries/zed/issues/54203) を参照。
 
@@ -157,7 +165,7 @@ p5.js のスケッチを管理・編集するための CLI ツール。
 }
 ```
 
-**`keybindings.json`（`space s` で起動する場合）:**
+**`keybindings.json` (`space s` で起動する場合):**
 
 ```json
 [
@@ -172,7 +180,7 @@ p5.js のスケッチを管理・編集するための CLI ツール。
 
 #### コマンドパレットから開く
 
-1. `Ctrl+Shift+P`（macOS は `Cmd+Shift+P`）を押す
+1. `Ctrl/Cmd+Shift+P` を押す
 2. `Tasks: Run Task` と入力して選択
 3. `Sketch` を選ぶ
 
