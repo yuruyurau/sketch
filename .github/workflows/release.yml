@@ -1,0 +1,80 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - os: windows
+            arch: amd64
+            bin: sketch.exe
+          - os: linux
+            arch: amd64
+            bin: sketch
+          - os: linux
+            arch: arm64
+            bin: sketch
+          - os: darwin
+            arch: amd64
+            bin: sketch
+          - os: darwin
+            arch: arm64
+            bin: sketch
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-go@v7
+        with:
+          go-version: '1.27.4'
+
+      - name: Build
+        env:
+          GOOS: ${{ matrix.os }}
+          GOARCH: ${{ matrix.arch }}
+          CGO_ENABLED: 0
+        run: |
+          mkdir -p dist
+          go build -trimpath -ldflags="-s -w" -o "dist/${{ matrix.bin }}"
+          cp LICENSE config.json dist/
+
+      - name: Package
+        run: |
+          cd dist
+          zip -r "../sketch_${GITHUB_REF_NAME#v}_${{ matrix.os }}_${{ matrix.arch }}.zip" .
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: sketch_${{ matrix.os }}_${{ matrix.arch }}
+          path: sketch_*.zip
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          path: artifacts
+          merge-multiple: true
+
+      - name: Generate checksums
+        run: |
+          cd artifacts
+          sha256sum *.zip > checksums.txt
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v3
+        with:
+          files: |
+            artifacts/*.zip
+            artifacts/checksums.txt
+          generate_release_notes: true
