@@ -21,6 +21,24 @@ p5.js のスケッチを管理・編集するための CLI ツール。
 - ブラウザ（プレビュー用）
 - エディタ（後述の対応エディタのいずれか。デフォルトは nvim）
 
+<details>
+<summary>Homebrew / Scoop / Winget</summary>
+
+- **macOS (Homebrew)**
+  ```bash
+  brew install fzf fd ripgrep bat neovim ffmpeg
+  ```
+- **Windows (Scoop)**
+  ```powershell
+  scoop install fzf fd ripgrep bat neovim ffmpeg
+  ```
+- **Windows (Winget)**
+  ```powershell
+  winget install --id junegunn.fzf --id sharkdp.fd --id BurntSushi.ripgrep.MSVC --id sharkdp.bat --id Neovim.Neovim --id Gyan.FFmpeg
+  ```
+
+</details>
+
 ### 対応エディタ
 
 - [nvim](https://github.com/neovim/neovim) / [vim](https://github.com/vim/vim) / `vi` / [neovide](https://github.com/neovide/neovide)
@@ -28,6 +46,7 @@ p5.js のスケッチを管理・編集するための CLI ツール。
 - [hx / helix](https://github.com/helix-editor/helix)
 - [fresh](https://github.com/sinelaw/fresh)
 - [zed / zeditor](https://zed.dev)
+- [code / code-insiders](https://code.visualstudio.com/)
 
 <details>
 <summary>Zed の設定</summary>
@@ -48,7 +67,7 @@ p5.js のスケッチを管理・編集するための CLI ツール。
 - Windows: `%APPDATA%\Zed\`
 - プロジェクトローカル（全OS共通）: `.zed/`
 
-`tasks.json`:
+**`tasks.json`:**
 
 ```json
 [
@@ -63,7 +82,7 @@ p5.js のスケッチを管理・編集するための CLI ツール。
 ]
 ```
 
-`keymap.json`:
+**`keymap.json`:**
 
 ```json
 [
@@ -84,20 +103,82 @@ p5.js のスケッチを管理・編集するための CLI ツール。
 </details>
 
 <details>
-<summary>Homebrew / Scoop / Winget</summary>
+<summary>VS Code の設定</summary>
 
-- **macOS (Homebrew)**
-  ```bash
-  brew install fzf fd ripgrep bat neovim ffmpeg
-  ```
-- **Windows (Scoop)**
-  ```powershell
-  scoop install fzf fd ripgrep bat neovim ffmpeg
-  ```
-- **Windows (Winget)**
-  ```powershell
-  winget install --id junegunn.fzf --id sharkdp.fd --id BurntSushi.ripgrep.MSVC --id sharkdp.bat --id Neovim.Neovim --id Gyan.FFmpeg
-  ```
+`~/.config/sketch/config.json` に以下を設定:
+
+```json
+"editor": "code"
+```
+
+（Insiders 版を使っている場合は `"code-insiders"`）
+
+#### VS Code 内から sketch を起動する（推奨）
+
+`tasks.json` と `settings.json` の場所:
+
+- macOS / Linux: `~/.config/Code/User/`
+- Windows: `%APPDATA%\Code\User\`
+- プロジェクトローカル（全OS共通）: `.vscode/`
+
+**推奨する `settings.json` の追加:**
+
+```json
+{
+  "terminal.integrated.defaultLocation": "editor"
+}
+```
+
+ターミナルがエディタタブとして開くため、最大化しやすくなります。
+
+**`tasks.json`:**
+
+```json
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Sketch",
+      "type": "shell",
+      "command": "sketch",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "revealProblems": "onProblem",
+        "panel": "new",
+        "focus": true,
+        "echo": false,
+        "showReuseMessage": false,
+        "clear": true,
+        "close": true
+      }
+    }
+  ]
+}
+```
+
+**`keybindings.json`（`space s` で起動する場合）:**
+
+```json
+[
+  {
+    "key": "space s",
+    "command": "workbench.action.tasks.runTask",
+    "args": "Sketch",
+    "when": "editorTextFocus"
+  }
+]
+```
+
+#### コマンドパレットから開く
+
+1. `Ctrl+Shift+P`（macOS は `Cmd+Shift+P`）を押す
+2. `Tasks: Run Task` と入力して選択
+3. `Sketch` を選ぶ
+
+> **fzf のキー操作について（VS Code ターミナル内）**:  
+> VS Code が `Ctrl+J` / `Ctrl+K` / `Ctrl+Q` を横取りするため、fzf まで届きません。  
+> 選択の移動は矢印キー（`↑` / `↓`）、キャンセルは `Esc` を使ってください。
 
 </details>
 

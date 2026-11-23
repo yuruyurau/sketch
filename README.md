@@ -21,6 +21,26 @@ A CLI tool for managing and editing p5.js sketches.
 - A browser (for preview)
 - An editor (any of the supported editors listed below; default is nvim)
 
+<details>
+<summary>Homebrew / Scoop / Winget</summary>
+
+- **macOS (Homebrew)**
+
+  ```bash
+  brew install fzf fd ripgrep bat neovim ffmpeg
+  ```
+
+- **Windows (Scoop)**
+  ```powershell
+  scoop install fzf fd ripgrep bat neovim ffmpeg
+  ```
+- **Windows (Winget)**
+  ```powershell
+  winget install --id junegunn.fzf --id sharkdp.fd --id BurntSushi.ripgrep.MSVC --id sharkdp.bat --id Neovim.Neovim --id Gyan.FFmpeg
+  ```
+
+</details>
+
 ### Supported Editors
 
 - [nvim](https://github.com/neovim/neovim) / [vim](https://github.com/vim/vim) / `vi` / [neovide](https://github.com/neovide/neovide)
@@ -28,6 +48,7 @@ A CLI tool for managing and editing p5.js sketches.
 - [hx / helix](https://github.com/helix-editor/helix)
 - [fresh](https://github.com/sinelaw/fresh)
 - [zed / zeditor](https://zed.dev)
+- [code / code-insiders](https://code.visualstudio.com/)
 
 <details>
 <summary>Zed configuration</summary>
@@ -48,7 +69,7 @@ Locations for `tasks.json` and `keymap.json`:
 - Windows: `%APPDATA%\Zed\`
 - Project-local (all platforms): `.zed/`
 
-Example `tasks.json`:
+**`tasks.json`:**
 
 ```json
 [
@@ -63,7 +84,7 @@ Example `tasks.json`:
 ]
 ```
 
-Example `keymap.json`:
+**`keymap.json`:**
 
 ```json
 [
@@ -84,22 +105,82 @@ Example `keymap.json`:
 </details>
 
 <details>
-<summary>Homebrew / Scoop / Winget</summary>
+<summary>VS Code configuration</summary>
 
-- **macOS (Homebrew)**
+Set in `~/.config/sketch/config.json`:
 
-  ```bash
-  brew install fzf fd ripgrep bat neovim ffmpeg
-  ```
+```json
+"editor": "code"
+```
 
-- **Windows (Scoop)**
-  ```powershell
-  scoop install fzf fd ripgrep bat neovim ffmpeg
-  ```
-- **Windows (Winget)**
-  ```powershell
-  winget install --id junegunn.fzf --id sharkdp.fd --id BurntSushi.ripgrep.MSVC --id sharkdp.bat --id Neovim.Neovim --id Gyan.FFmpeg
-  ```
+(Use `"code-insiders"` if you use the Insiders build.)
+
+#### Launching sketch from inside VS Code (recommended)
+
+Locations for `tasks.json` and `settings.json`:
+
+- macOS / Linux: `~/.config/Code/User/`
+- Windows: `%APPDATA%\Code\User\`
+- Project-local (all platforms): `.vscode/`
+
+**Recommended `settings.json` addition:**
+
+```json
+{
+  "terminal.integrated.defaultLocation": "editor"
+}
+```
+
+This makes the terminal open as an editor tab, which is easier to maximize.
+
+**`tasks.json`:**
+
+```json
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Sketch",
+      "type": "shell",
+      "command": "sketch",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "revealProblems": "onProblem",
+        "panel": "new",
+        "focus": true,
+        "echo": false,
+        "showReuseMessage": false,
+        "clear": true,
+        "close": true
+      }
+    }
+  ]
+}
+```
+
+**`keybindings.json` (to launch with `space s`):**
+
+```json
+[
+  {
+    "key": "space s",
+    "command": "workbench.action.tasks.runTask",
+    "args": "Sketch",
+    "when": "editorTextFocus"
+  }
+]
+```
+
+#### Opening via Command Palette
+
+1. Press `Ctrl+Shift+P` (macOS: `Cmd+Shift+P`)
+2. Type `Tasks: Run Task`
+3. Select `Sketch`
+
+> **Note on fzf keybindings inside VS Code terminal**:  
+> VS Code intercepts `Ctrl+J` / `Ctrl+K` / `Ctrl+Q`, so they do not reach fzf.  
+> Use the arrow keys (`↑` / `↓`) to move the selection and `Esc` to cancel instead.
 
 </details>
 

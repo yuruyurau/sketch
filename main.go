@@ -399,6 +399,13 @@ func openEditor(editor, target, line string) {
 		} else {
 			args = append(args, target)
 		}
+	case "code", "code-insiders":
+		args = append(args, "--wait")
+		if line != "" {
+			args = append(args, "-g", target+":"+line)
+		} else {
+			args = append(args, target)
+		}
 	default:
 		if line != "" {
 			args = append(args, "+"+line)
