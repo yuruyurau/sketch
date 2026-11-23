@@ -22,6 +22,8 @@
     "cpuUsed": "1",
     "g": 15,
     "pixelDensity": 1.0,
+    "timeout": 60,
+    "maxFail": 10,
     "browser": {
       "path": "",
       "args": []

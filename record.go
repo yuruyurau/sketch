@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/base64"
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -110,7 +111,13 @@ func recordSketch(url string, rec RecordConfig, outPath string) error {
 		return fmt.Errorf("chrome not found: %s", chrome)
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
+	var ctx context.Context
+	var cancel context.CancelFunc
+	if rec.Timeout > 0 {
+		ctx, cancel = context.WithTimeout(context.Background(), time.Duration(rec.Timeout)*time.Minute)
+	} else {
+		ctx, cancel = context.WithCancel(context.Background())
+	}
 	defer cancel()
 
 	opts := append(chromedp.DefaultExecAllocatorOptions[:],
@@ -178,6 +185,12 @@ func recordSketch(url string, rec RecordConfig, outPath string) error {
 	log.Printf("  %d frames @ %gfps", rec.Total, rec.FPS)
 	log.Printf("  %s | CRF %d", strings.ToUpper(rec.Codec), rec.CRF)
 	log.Printf("  %dx%d (pixelDensity %g)", size.Width, size.Height, rec.PixelDensity)
+	if rec.Timeout > 0 {
+		log.Printf("  timeout: %d min", rec.Timeout)
+	} else {
+		log.Printf("  timeout: none")
+	}
+	log.Printf("  maxFail: %d", rec.MaxFail)
 
 	if err := chromedp.Do(taskCtx, chromedp.EmulateViewport(int64(size.Width), int64(size.Height))); err != nil {
 		return fmt.Errorf("emulate viewport: %w", err)
@@ -202,7 +215,7 @@ func recordSketch(url string, rec RecordConfig, outPath string) error {
 				fmt.Printf("\r  advancing %d/%d frames...", i+1, rec.Start)
 			}
 		}
-		fmt.Println() // 最後に改行して次のログをきれいにする
+		fmt.Println()
 	}
 
 	ff := exec.Command("ffmpeg", buildFfmpegArgs(rec, outPath)...)
@@ -221,28 +234,43 @@ func recordSketch(url string, rec RecordConfig, outPath string) error {
 	defer stdin.Close()
 
 	failCount := 0
+	maxFail := rec.MaxFail
+	if maxFail <= 0 {
+		maxFail = 10
+	}
+
 	for i := 0; i < rec.Total; i++ {
-		// frameCount の強制上書きはしない。単に redraw を呼ぶ
+		// redraw
 		if err := chromedp.Do(taskCtx, chromedp.Evaluate[chromedp.Void](`
             if (typeof redraw === "function") redraw();
         `)); err != nil {
+			if errors.Is(err, context.DeadlineExceeded) || errors.Is(err, context.Canceled) {
+				return fmt.Errorf("timeout or canceled: %w", err)
+			}
 			failCount++
-			if failCount >= 10 {
-				return fmt.Errorf("too many consecutive frame failures")
+			// log.Printf("FAIL %d redraw: %v", failCount, err)
+			if failCount >= maxFail {
+				return fmt.Errorf("too many consecutive frame failures (%d): %w", maxFail, err)
 			}
 			continue
 		}
 
+		// raf
 		if err := chromedp.Do(taskCtx, chromedp.Evaluate[chromedp.Void](`
             new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)))
         `, chromedp.EvalAwaitPromise)); err != nil {
+			if errors.Is(err, context.DeadlineExceeded) || errors.Is(err, context.Canceled) {
+				return fmt.Errorf("timeout or canceled: %w", err)
+			}
 			failCount++
-			if failCount >= 10 {
-				return fmt.Errorf("too many consecutive frame failures")
+			// log.Printf("FAIL %d raf: %v", failCount, err)
+			if failCount >= maxFail {
+				return fmt.Errorf("too many consecutive frame failures (%d): %w", maxFail, err)
 			}
 			continue
 		}
 
+		// dataURL
 		dataURL, err := chromedp.Run(taskCtx, chromedp.Evaluate[string](`
             (async () => {
                 const canvas = document.querySelector("canvas");
@@ -257,23 +285,29 @@ func recordSketch(url string, rec RecordConfig, outPath string) error {
             })()
         `, chromedp.EvalAwaitPromise))
 		if err != nil || !strings.HasPrefix(dataURL, "data:image/png;base64,") {
+			if err != nil && (errors.Is(err, context.DeadlineExceeded) || errors.Is(err, context.Canceled)) {
+				return fmt.Errorf("timeout or canceled: %w", err)
+			}
 			failCount++
-			if failCount >= 10 {
-				return fmt.Errorf("too many consecutive frame failures")
+			// log.Printf("FAIL %d dataURL: err=%v", failCount, err)
+			if failCount >= maxFail {
+				return fmt.Errorf("too many consecutive frame failures (%d): %w", maxFail, err)
 			}
 			continue
 		}
-		failCount = 0
 
+		// decode
 		b64 := strings.TrimPrefix(dataURL, "data:image/png;base64,")
 		png, err := base64.StdEncoding.DecodeString(b64)
 		if err != nil || len(png) < 100 {
 			failCount++
-			if failCount >= 10 {
-				return fmt.Errorf("too many consecutive frame failures")
+			// log.Printf("FAIL %d decode: err=%v len=%d", failCount, err, len(png))
+			if failCount >= maxFail {
+				return fmt.Errorf("too many consecutive frame failures (%d): %w", maxFail, err)
 			}
 			continue
 		}
+
 		failCount = 0
 
 		if _, err := stdin.Write(png); err != nil {

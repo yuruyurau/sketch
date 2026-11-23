@@ -139,6 +139,8 @@ func selectRecordOptions(base RecordConfig, p5Version, p5Source string) (*Record
 			fmt.Sprintf("pixelDensity: %g", rec.PixelDensity),
 			fmt.Sprintf("p5Version   : %s", p5Version),
 			fmt.Sprintf("p5Source    : %s", p5Source),
+			fmt.Sprintf("timeout     : %d min (0=none)", rec.Timeout),
+			fmt.Sprintf("maxFail     : %d", rec.MaxFail),
 			"done        : 録画を開始",
 			"quit        : キャンセル",
 		}
@@ -215,6 +217,18 @@ func selectRecordOptions(base RecordConfig, p5Version, p5Source string) (*Record
 					p5Source = v
 				default:
 					fmt.Println("  → cdn / local / auto のいずれかを指定してください")
+				}
+			}
+		case "timeout":
+			if v := prompt(fmt.Sprintf("timeout minutes (現在: %d, 0=none): ", rec.Timeout)); v != "" {
+				if i, err := strconv.Atoi(v); err == nil {
+					rec.Timeout = i
+				}
+			}
+		case "maxFail":
+			if v := prompt(fmt.Sprintf("maxFail (現在: %d): ", rec.MaxFail)); v != "" {
+				if i, err := strconv.Atoi(v); err == nil && i > 0 {
+					rec.MaxFail = i
 				}
 			}
 		case "done":
@@ -458,6 +472,8 @@ type RecordConfig struct {
 	CPUUsed      string        `json:"cpuUsed"`
 	G            int           `json:"g"`
 	PixelDensity float64       `json:"pixelDensity"`
+	Timeout      int           `json:"timeout"` // minutes. 0 = no timeout
+	MaxFail      int           `json:"maxFail"` // consecutive failures
 	Browser      BrowserConfig `json:"browser"`
 }
 
@@ -497,6 +513,9 @@ func expandPath(p string) string {
 func loadConfig() Config {
 	var cfg Config
 
+	cfg.Record.Timeout = 60
+	cfg.Record.MaxFail = 10
+
 	home, err := os.UserHomeDir()
 	if err != nil {
 		log.Fatal("failed to get home directory")
@@ -509,6 +528,10 @@ func loadConfig() Config {
 	}
 	if err := json.Unmarshal(data, &cfg); err != nil {
 		log.Fatal(err)
+	}
+
+	if cfg.Record.MaxFail <= 0 {
+		cfg.Record.MaxFail = 10
 	}
 
 	if cfg.Editor == "" {

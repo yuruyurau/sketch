@@ -298,6 +298,8 @@ To use a local file:
     "cpuUsed": "1",
     "g": 15,
     "pixelDensity": 1.0,
+    "timeout": 60,
+    "maxFail": 10,
     "browser": {
       "path": "",
       "args": []
@@ -344,6 +346,8 @@ To use a local file:
 | `cpuUsed`      | Speed setting for vp9                     |                                                |
 | `g`            | Keyframe interval                         |                                                |
 | `pixelDensity` | pixelDensity during recording             |                                                |
+| `timeout`      | Overall timeout in minutes                | `0` or negative = no timeout. Default: 60      |
+| `maxFail`      | Max consecutive frame failures            | Default: 10                                    |
 | `browser.path` | Chrome binary for recording               | **Required** (launched headless)               |
 | `browser.args` | Extra arguments for the recording browser |                                                |
 
@@ -468,13 +472,13 @@ Only during file / content search:
 
 #### record
 
-| Item         | Description                                                                                       |
-| ------------ | ------------------------------------------------------------------------------------------------- |
-| Action       | Select a sketch and record it                                                                     |
-| Before start | You can change fps / total / start / codec / crf / pixelDensity / p5Version / p5Source etc.       |
-| Output       | `outDir` from config                                                                              |
-| Format       | vp9 → webm, otherwise mp4                                                                         |
-| Server       | Temporarily starts a server on `record.port` (stops afterward). Does not start if already in use. |
+| Item         | Description                                                                                                     |
+| ------------ | --------------------------------------------------------------------------------------------------------------- |
+| Action       | Select a sketch and record it                                                                                   |
+| Before start | You can change fps / total / start / codec / crf / pixelDensity / timeout / maxFail / p5Version / p5Source etc. |
+| Output       | `outDir` from config                                                                                            |
+| Format       | vp9 → webm, otherwise mp4                                                                                       |
+| Server       | Temporarily starts a server on `record.port` (stops afterward). Does not start if already in use.               |
 
 > **About `total` and `start`**
 >
@@ -482,6 +486,11 @@ Only during file / content search:
 >   The result must be an integer ≥ 1. Non-integer values (such as `1.5`) are rejected.  
 >   Division is integer division (`1/2` → `0`).
 > - `start` advances the sketch by that many frames before recording begins.
+
+> **About `timeout` and `maxFail`**
+>
+> - `timeout`: overall recording timeout in minutes. `0` or negative disables it (default: 60).
+> - `maxFail`: maximum number of consecutive frame failures before aborting (default: 10).
 
 <!-- todo video -->
 
