@@ -501,6 +501,17 @@ Only during file / content search:
 | Action | Opens `~/.config/sketch/config.json` in the editor |
 | Server | Not started                                        |
 
+## Using Multiple Files
+
+You can load other files (images, helper scripts, JSON, etc.) from the same directory as the sketch using relative paths.
+
+See the complete working example:
+
+- [`examples/multi-file/`](examples/multi-file/)
+
+> p5.js 2.x removed `preload()`. Use `async setup()` + `await`.  
+> Live reload only watches the main file you opened. Saving `utils.js` (or other auxiliary files) does not trigger a reload — save `main.js` to refresh.
+
 ## Building
 
 > [!NOTE]

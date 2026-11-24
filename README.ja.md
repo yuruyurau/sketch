@@ -499,6 +499,17 @@ https://github.com/user-attachments/assets/37e20539-2a49-4cc4-a0ff-eb6a9a268570
 | 動作     | `~/.config/sketch/config.json` をエディタで開く |
 | サーバー | 起動しない                                      |
 
+## 複数ファイルの利用
+
+スケッチと同じディレクトリに置いたファイル（画像・補助スクリプト・JSON など）は、相対パスで読み込めます。
+
+完全な動作例はこちらを参照してください：
+
+- [`examples/multi-file/`](examples/multi-file/)
+
+> p5.js 2.x では `preload()` が削除されています。`async setup()` + `await` を使ってください。  
+> ライブリロードは開いたメインファイルだけを監視します。`utils.js` などを保存してもリロードは走りません。リロードしたいときは `main.js` を保存してください。
+
 ## ビルドする場合
 
 > [!NOTE]
