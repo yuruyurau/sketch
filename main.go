@@ -149,7 +149,7 @@ func selectRecordOptions(base RecordConfig, p5Version, p5Source string) (*Record
 			"--layout", "reverse",
 			"--style", "minimal",
 			"--margin", "3,7",
-			"--height", "22",
+			"--height", "25",
 			"--border",
 		}, "")
 		if selected == "" {
@@ -292,7 +292,7 @@ func selectFile(sketchDir string) string {
 		"--style", "minimal",
 		"--margin", "4,7",
 		"--preview", "bat --style=plain --color=always --wrap=never {}",
-		"--preview-window", "hidden,border-none",
+		"--preview-window", "hidden,border,right,60%",
 		"--bind", "ctrl-t:toggle-preview,J:preview-down,K:preview-up,ctrl-q:abort",
 		"--cycle",
 	}, sketchDir)
@@ -330,7 +330,7 @@ func selectByContent(sketchDir string, exact bool) (string, string) {
 		"--layout", "reverse",
 		"--margin", "4,7",
 		"--preview", "bat --style=plain --color=always --wrap=never --highlight-line {2} {1}",
-		"--preview-window", "hidden,border-none,+{2}+3/3",
+		"--preview-window", "hidden,border,right,60%,+{2}+3/3",
 		"--bind", "ctrl-t:toggle-preview,J:preview-down,K:preview-up,ctrl-q:abort",
 		"--cycle",
 	}
