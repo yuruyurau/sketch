@@ -375,15 +375,15 @@ On launch you select a mode with fzf.
 
 https://github.com/user-attachments/assets/37e20539-2a49-4cc4-a0ff-eb6a9a268570
 
-| Mode   | Description                                         |
-| ------ | --------------------------------------------------- |
-| today  | Open today’s sketch (creates a template if missing) |
-| fuzzy  | Fuzzy search in sketch contents (fzf)               |
-| exact  | Exact search in sketch contents (fzf --exact)       |
-| file   | Search by filename                                  |
-| add    | Create a new sketch                                 |
-| record | Record a sketch                                     |
-| config | Open the config file (config.json)                  |
+| Mode   | Description                                                                                                                                     |
+| ------ | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| today  | Open today’s sketch. If none exists, choose global or instance mode to create one. If both `.js` and `.mod.js` exist, choose which one to open. |
+| fuzzy  | Fuzzy search in sketch contents (fzf)                                                                                                           |
+| exact  | Exact search in sketch contents (fzf --exact)                                                                                                   |
+| file   | Search by filename                                                                                                                              |
+| add    | Create a new sketch. After entering the name, choose global or instance mode (unless the extension is explicitly specified).                    |
+| record | Record a sketch                                                                                                                                 |
+| config | Open the config file (config.json)                                                                                                              |
 
 > **About search**
 >
@@ -415,12 +415,13 @@ Only during file / content search:
 
 #### today
 
-| Item       | Description                                                                                             |
-| ---------- | ------------------------------------------------------------------------------------------------------- |
-| Action     | Opens today’s sketch (`YYYY-MM-DD.js`)                                                                  |
-| If missing | Creates a template then opens it                                                                        |
-| Editor     | The editor set in config (default: nvim)                                                                |
-| Server     | Starts a server (stops when the editor exits). If already in use, asks whether to open the editor only. |
+| Item          | Description                                                                                              |
+| ------------- | -------------------------------------------------------------------------------------------------------- |
+| Action        | Opens today’s sketch (`YYYY-MM-DD.js` or `YYYY-MM-DD.mod.js`)                                            |
+| If missing    | Asks whether to create it in global mode (`.js`) or instance mode (`.mod.js`), then creates and opens it |
+| If both exist | Asks which one to open                                                                                   |
+| Editor        | The editor set in config (default: nvim)                                                                 |
+| Server        | Starts a server (stops when the editor exits). If already in use, asks whether to open the editor only.  |
 
 <!-- todo video -->
 
@@ -461,12 +462,12 @@ Only during file / content search:
 
 #### add
 
-| Item      | Description                                                                                             |
-| --------- | ------------------------------------------------------------------------------------------------------- |
-| Action    | Create (or open) a sketch and open it                                                                   |
-| Extension | `.js` is added automatically if omitted                                                                 |
-| If exists | Opens the existing file                                                                                 |
-| Server    | Starts a server (stops when the editor exits). If already in use, asks whether to open the editor only. |
+| Item      | Description                                                                                                             |
+| --------- | ----------------------------------------------------------------------------------------------------------------------- |
+| Action    | Create (or open) a sketch and open it                                                                                   |
+| Extension | If the name ends with `.js` or `.mod.js`, that mode is used. Otherwise you are asked to choose global or instance mode. |
+| If exists | Opens the existing file                                                                                                 |
+| Server    | Starts a server (stops when the editor exits). If already in use, asks whether to open the editor only.                 |
 
 <!-- todo video -->
 
@@ -503,6 +504,8 @@ Only during file / content search:
 
 ## Using Multiple Files
 
+### Global Mode
+
 You can load other files (images, helper scripts, JSON, etc.) from the same directory as the sketch using relative paths.
 
 See the complete working example:
@@ -511,6 +514,39 @@ See the complete working example:
 
 > p5.js 2.x removed `preload()`. Use `async setup()` + `await`.  
 > Live reload only watches the main file you opened. Saving `utils.js` (or other auxiliary files) does not trigger a reload — save `main.js` to refresh.
+
+### Instance Mode
+
+`.mod.js` files are loaded as ES modules and are intended for **instance mode**.
+
+| Extension  | Mode          | Notes                             |
+| ---------- | ------------- | --------------------------------- |
+| `*.js`     | global mode   | Traditional global-mode sketches  |
+| `*.mod.js` | instance mode | Supports `import` + instance mode |
+
+```js
+// 2026-11-25.mod.js
+import { drawGrid } from "./utils.js";
+
+const sketch = (p) => {
+  p.setup = () => p.createCanvas(400, 400);
+
+  p.draw = () => {
+    p.background(0);
+    drawGrid(p);
+  };
+};
+
+// Required for recording
+window.p5Instance = new p5(sketch);
+```
+
+- Relative imports (`./utils.js`, `./lib/grid.js`) work.
+- `../` is not allowed (security).
+- Utility functions should accept `p` as the first argument.
+- Set `window.p5Instance` for recording to work correctly.
+
+See the complete example in [`examples/instance-mode/`](examples/instance-mode/).
 
 ## Building
 
