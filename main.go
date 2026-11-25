@@ -42,6 +42,11 @@ func main() {
 		cfg.P5Source = *p5SourceFlag
 	}
 
+	if flag.NArg() > 0 && flag.Arg(0) == "build" {
+		runBuild(cfg, flag.Args()[1:])
+		return
+	}
+
 	if *serverMode || flag.NArg() > 0 {
 		runServer(cfg)
 		return
@@ -58,6 +63,7 @@ exact     : 内容の完全一致検索
 file      : ファイル名検索
 add       : スケッチ作成
 record    : 録画する
+build     : ビルドする
 config    : 設定ファイルを開く`
 
 	selected := fzfSelect(modes, []string{
@@ -208,6 +214,12 @@ instance : インスタンスモード (.mod.js)`, []string{
 			return
 		}
 		recordInteractive(cfg, path, *rec, p5Version, p5Source)
+	case "build":
+		path := selectFile(cfg.SketchDir)
+		if path == "" {
+			return
+		}
+		runBuildInteractive(cfg, path)
 	case "config":
 		home, err := os.UserHomeDir()
 		if err != nil {
@@ -218,6 +230,58 @@ instance : インスタンスモード (.mod.js)`, []string{
 	default:
 		log.Println("未対応のモードです")
 	}
+}
+
+func runBuildInteractive(cfg Config, jsPath string) {
+	options := `separate : 分離版（index.html + bundle.js）
+single   : 単一ファイル版（index.html のみ）
+quit     : キャンセル`
+
+	selected := fzfSelect(options, []string{
+		"--prompt", "ビルド形式> ",
+		"--layout", "reverse",
+		"--style", "minimal",
+		"--margin", "3,7",
+		"--height", "15",
+		"--border",
+	}, "")
+	if selected == "" {
+		return
+	}
+
+	key := strings.TrimSpace(strings.Split(selected, ":")[0])
+	if key == "quit" {
+		return
+	}
+
+	single := key == "single"
+
+	defaultOut := filepath.Join(cfg.SketchDir, "dist")
+	defaultOutDisplay := displayPath(defaultOut)
+
+	outdir := prompt(fmt.Sprintf("出力ディレクトリ (空enterで %s): ", defaultOutDisplay))
+	if outdir == "" {
+		outdir = defaultOut
+	} else {
+		outdir = expandPath(outdir)
+	}
+
+	args := []string{}
+	if single {
+		args = append(args, "--single")
+	}
+	args = append(args, "--outdir", outdir)
+	args = append(args, jsPath)
+
+	runBuild(cfg, args)
+}
+
+func displayPath(path string) string {
+	home, err := os.UserHomeDir()
+	if err == nil && strings.HasPrefix(path, home) {
+		path = "~" + path[len(home):]
+	}
+	return filepath.ToSlash(path)
 }
 
 func selectRecordOptions(base RecordConfig, p5Version, p5Source string) (*RecordConfig, string, string) {
@@ -783,4 +847,241 @@ func evalAST(node ast.Expr) (int, error) {
 	default:
 		return 0, fmt.Errorf("unsupported expression")
 	}
+}
+
+func runBuild(cfg Config, args []string) {
+	fs := flag.NewFlagSet("build", flag.ExitOnError)
+	outdir := fs.String("outdir", "dist", "output directory for build")
+	single := fs.Bool("single", false, "output single-file HTML only (index.html)")
+
+	if err := fs.Parse(args); err != nil {
+		log.Fatal(err)
+	}
+
+	remaining := fs.Args()
+	if len(remaining) == 0 {
+		log.Fatal("usage: sketch build [options] <file.js>")
+	}
+
+	jsPath := remaining[0]
+	abs, err := filepath.Abs(jsPath)
+	if err != nil {
+		log.Fatal(err)
+	}
+	if _, err := os.Stat(abs); err != nil {
+		log.Fatalf("not found: %s", jsPath)
+	}
+
+	if err := os.MkdirAll(*outdir, 0o755); err != nil {
+		log.Fatal(err)
+	}
+
+	if _, err := exec.LookPath("bun"); err != nil {
+		log.Fatal("bun not found in PATH")
+	}
+
+	isModule := strings.HasSuffix(filepath.Base(abs), ".mod.js")
+
+	format := "iife"
+	if isModule {
+		format = "esm"
+	}
+
+	bundlePath := filepath.Join(*outdir, "bundle.js")
+	cmd := exec.Command("bun", "build",
+		"--bundle",
+		"--minify",
+		"--target=browser",
+		"--format="+format,
+		abs,
+		"--outfile", bundlePath,
+	)
+	cmd.Dir = filepath.Dir(abs)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	log.Printf("bundling %s...", filepath.Base(abs))
+	if err := cmd.Run(); err != nil {
+		log.Fatalf("bun build failed: %v", err)
+	}
+
+	p5Src, err := resolveP5ForBuild(cfg, *outdir)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if *single {
+		bundleContent, err := os.ReadFile(bundlePath)
+		if err != nil {
+			log.Fatal(err)
+		}
+		html := generateStaticHTMLContentSingle(p5Src, string(bundleContent), isModule)
+		htmlPath := filepath.Join(*outdir, "index.html")
+		if err := os.WriteFile(htmlPath, []byte(html), 0o644); err != nil {
+			log.Fatal(err)
+		}
+		os.Remove(bundlePath)
+		log.Printf("done → %s (single file)", displayPath(htmlPath))
+	} else {
+		html := generateStaticHTMLContentSeparate(p5Src, "bundle.js", isModule)
+		htmlPath := filepath.Join(*outdir, "index.html")
+		if err := os.WriteFile(htmlPath, []byte(html), 0o644); err != nil {
+			log.Fatal(err)
+		}
+		log.Printf("done → %s/ (index.html + bundle.js)", displayPath(*outdir))
+	}
+}
+
+func generateStaticHTMLContentSeparate(p5Src, bundleSrc string, isModule bool) string {
+	scriptTag := `<script src="./%s"></script>`
+	if isModule {
+		scriptTag = `<script type="module" src="./%s"></script>`
+	}
+
+	return fmt.Sprintf(`<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="icon" href="data:,">
+<style>
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%%;
+  height: 100%%;
+  background: #030303;
+  overflow: hidden;
+}
+body, main {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%%;
+  height: 100%%;
+}
+canvas {
+  display: block;
+  width: 100%% !important;
+  height: 100%% !important;
+  max-width: calc(100%% - 40px) !important;
+  max-height: calc(100%% - 40px) !important;
+  object-fit: contain;
+}
+</style>
+<script>
+Object.defineProperty(navigator, 'language', { get: () => 'en' });
+Object.defineProperty(navigator, 'languages', { get: () => ['en'] });
+</script>
+<script src="%s"></script>
+%s
+</head>
+<body>
+</body>
+</html>`, p5Src, fmt.Sprintf(scriptTag, bundleSrc))
+}
+
+func generateStaticHTMLContentSingle(p5Src, inlineJS string, isModule bool) string {
+	scriptTag := `<script>%s</script>`
+	if isModule {
+		scriptTag = `<script type="module">%s</script>`
+	}
+
+	return fmt.Sprintf(`<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="icon" href="data:,">
+<style>
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%%;
+  height: 100%%;
+  background: #030303;
+  overflow: hidden;
+}
+body, main {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%%;
+  height: 100%%;
+}
+canvas {
+  display: block;
+  width: 100%% !important;
+  height: 100%% !important;
+  max-width: calc(100%% - 40px) !important;
+  max-height: calc(100%% - 40px) !important;
+  object-fit: contain;
+}
+</style>
+<script>
+Object.defineProperty(navigator, 'language', { get: () => 'en' });
+Object.defineProperty(navigator, 'languages', { get: () => ['en'] });
+</script>
+<script src="%s"></script>
+%s
+</head>
+<body>
+</body>
+</html>`, p5Src, fmt.Sprintf(scriptTag, inlineJS))
+}
+
+func resolveP5ForBuild(cfg Config, outdir string) (string, error) {
+	source := strings.ToLower(strings.TrimSpace(cfg.P5Source))
+	if source == "" {
+		source = "auto"
+	}
+
+	cdn := fmt.Sprintf("https://cdn.jsdelivr.net/npm/p5@%s/lib/p5.min.js", cfg.P5Version)
+
+	useLocal := false
+	localPath := cfg.P5LocalPath
+	if localPath != "" {
+		localPath = expandPath(localPath)
+		if _, err := os.Stat(localPath); err == nil {
+			useLocal = true
+		}
+	}
+
+	switch source {
+	case "local":
+		if !useLocal {
+			return "", fmt.Errorf("p5Source=local but p5LocalPath is invalid or not found: %s", cfg.P5LocalPath)
+		}
+	case "cdn":
+		return cdn, nil
+	case "auto":
+		if !useLocal {
+			return cdn, nil
+		}
+	default:
+		return cdn, nil
+	}
+
+	dst := filepath.Join(outdir, "p5.min.js")
+	if err := copyFile(localPath, dst); err != nil {
+		return "", fmt.Errorf("failed to copy p5.min.js: %w", err)
+	}
+	return "./p5.min.js", nil
+}
+
+func copyFile(src, dst string) error {
+	in, err := os.Open(src)
+	if err != nil {
+		return err
+	}
+	defer in.Close()
+
+	out, err := os.Create(dst)
+	if err != nil {
+		return err
+	}
+	defer out.Close()
+
+	if _, err := io.Copy(out, in); err != nil {
+		return err
+	}
+	return out.Sync()
 }

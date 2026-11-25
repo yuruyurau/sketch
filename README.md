@@ -20,6 +20,7 @@ A CLI tool for managing and editing p5.js sketches.
 - Chrome / Chromium or [Chrome for Testing](https://github.com/GoogleChromeLabs/chrome-for-testing) (for recording)
 - A browser (for preview)
 - An editor (any of the supported editors listed below; default is nvim)
+- [Bun](https://bun.sh) (for `sketch build`)
 
 <details>
 <summary>Homebrew / Scoop / Winget</summary>
@@ -360,6 +361,8 @@ sketch
 │   │   └── Select file → start server → open editor
 │   ├── record
 │   │   └── Select file + options → start recording server → chromedp + ffmpeg
+│   ├── build
+│   │   └── Select file + options → bundle with Bun → write static HTML
 │   └── config
 │       └── Open config.json
 │
@@ -383,6 +386,7 @@ https://github.com/user-attachments/assets/37e20539-2a49-4cc4-a0ff-eb6a9a268570
 | file   | Search by filename                                                                                                                              |
 | add    | Create a new sketch. After entering the name, choose global or instance mode (unless the extension is explicitly specified).                    |
 | record | Record a sketch                                                                                                                                 |
+| build  | Bundle a sketch into static HTML (requires Bun)                                                                                                 |
 | config | Open the config file (config.json)                                                                                                              |
 
 > **About search**
@@ -494,6 +498,37 @@ Only during file / content search:
 > - `maxFail`: maximum number of consecutive frame failures before aborting (default: 10).
 
 <!-- todo video -->
+
+#### build
+
+| Item         | Description                                                                                                     |
+| ------------ | --------------------------------------------------------------------------------------------------------------- |
+| Action       | Select a sketch and bundle it into static HTML                                                                 |
+| Requirements | [Bun](https://bun.sh) must be in your PATH                                                                     |
+| Output       | `index.html` + `bundle.js` (or single `index.html` with `--single`)                                            |
+| p5.js        | Follows `p5Source` / `p5LocalPath` in config.json                                                              |
+| Bundling     | Normal `.js` → IIFE, `.mod.js` → ESM. Relative imports are resolved automatically                              |
+
+**CLI examples**
+
+```bash
+# Separate files (index.html + bundle.js)
+sketch build path/to/sketch.js
+
+# Single-file HTML (JS inlined, works with file://)
+sketch build --single path/to/sketch.js
+
+# Custom output directory
+sketch build --outdir ./public path/to/sketch.js
+sketch build --single --outdir ~/export path/to/sketch.mod.js
+```
+
+| Option     | Description                              | Default |
+| ---------- | ---------------------------------------- | ------- |
+| `--outdir` | Output directory                         | `dist`  |
+| `--single` | Output a single self-contained HTML file | false   |
+
+In interactive mode, the default output directory is `sketchDir/dist`.
 
 #### config
 

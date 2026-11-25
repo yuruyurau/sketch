@@ -20,6 +20,7 @@ p5.js のスケッチを管理・編集するための CLI ツール。
 - Chrome / Chromium または [Chrome for Testing](https://github.com/GoogleChromeLabs/chrome-for-testing)（録画時）
 - ブラウザ（プレビュー用）
 - エディタ（後述の対応エディタのいずれか。デフォルトは nvim）
+- [Bun](https://bun.sh)（`sketch build` 用）
 
 <details>
 <summary>Homebrew / Scoop / Winget</summary>
@@ -353,16 +354,18 @@ mv sketch ~/.local/bin/
 
 ```
 sketch
-├── 対話モード（fzf）
+├── 対話モード (fzf)
 │   ├── today / add / file / fuzzy / exact
 │   │   └── ファイル選択 → サーバー起動 → エディタ起動
 │   ├── record
-│   │   └── ファイル選択 + オプション → 録画用サーバー起動 → chromedp + ffmpeg
+│   │   └── ファイル＋オプション選択 → 録画用サーバー起動 → chromedp + ffmpeg
+│   ├── build
+│   │   └── ファイル＋オプション選択 → Bun でバンドル → 静的 HTML 出力
 │   └── config
-│       └── config.json を開く
+│       └── 設定ファイルを開く
 │
-└── サーバーモード（--server）
-    ├── p5.js ラッパー付きでスケッチを配信
+└── サーバーモード (--server)
+    ├── p5.js ラッパーでスケッチを配信
     ├── SSE によるライブリロード
     └── fsnotify によるファイル監視
 ```
@@ -381,6 +384,7 @@ https://github.com/user-attachments/assets/37e20539-2a49-4cc4-a0ff-eb6a9a268570
 | file   | ファイル名で検索                                                                                          |
 | add    | 新しいスケッチを作成。名前入力後に global / instance を選択（拡張子を明示した場合はスキップ）。           |
 | record | 録画する                                                                                                  |
+| build  | スケッチを静的 html にバンドルする（bun が必要）                                                          |
 | config | 設定ファイル（config.json）を開く                                                                         |
 
 > **検索について**
@@ -492,6 +496,37 @@ https://github.com/user-attachments/assets/37e20539-2a49-4cc4-a0ff-eb6a9a268570
 > - `maxFail`: 連続してフレーム取得に失敗したときの許容回数（デフォルト: 10）。
 
 <!-- todo 動画 -->
+
+#### build
+
+| 項目     | 説明                                                                   |
+| -------- | ---------------------------------------------------------------------- |
+| 動作     | スケッチを選択して静的 HTML にバンドルする                             |
+| 要件     | PATH に [Bun](https://bun.sh) が必要                                   |
+| 出力     | `index.html` + `bundle.js`（`--single` の場合は単一の `index.html`）   |
+| p5.js    | config.json の `p5Source` / `p5LocalPath` に従う                       |
+| バンドル | 通常の `.js` は IIFE、`.mod.js` は ESM。相対 import は自動で解決される |
+
+**CLI 例**
+
+```bash
+# 分離版（index.html + bundle.js）
+sketch build path/to/sketch.js
+
+# 単一ファイル版（JS をインライン。file:// でも動く）
+sketch build --single path/to/sketch.js
+
+# 出力先を指定
+sketch build --outdir ./public path/to/sketch.js
+sketch build --single --outdir ~/export path/to/sketch.mod.js
+```
+
+| オプション | 説明                                   | デフォルト |
+| ---------- | -------------------------------------- | ---------- |
+| `--outdir` | 出力ディレクトリ                       | `dist`     |
+| `--single` | 単一の自己完結 HTML ファイルとして出力 | false      |
+
+対話モードでのデフォルト出力先は `sketchDir/dist` です。
 
 #### config
 
