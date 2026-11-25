@@ -123,6 +123,7 @@ func recordSketch(url string, rec RecordConfig, outPath string) error {
 	opts := append(chromedp.DefaultExecAllocatorOptions[:],
 		chromedp.ExecPath(chrome),
 		chromedp.Flag("headless", "new"),
+		chromedp.Flag("hide-scrollbars", true),
 		chromedp.Flag("no-sandbox", true),
 		chromedp.Flag("disable-dev-shm-usage", true),
 		chromedp.Flag("force-device-scale-factor", "1"),
