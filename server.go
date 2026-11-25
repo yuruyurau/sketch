@@ -196,29 +196,46 @@ func (s *Server) broadcastReload() {
 
 func (s *Server) handleRequest(w http.ResponseWriter, r *http.Request) {
 	upath := r.URL.Path
-	// ?raw が付いている場合はラッピングせず生のファイルを返す
 	_, hasRaw := r.URL.Query()["raw"]
 
-	if upath == "/" {
-		for _, t := range s.targets {
-			if strings.HasSuffix(t, ".js") {
-				s.serveWrapped(w, t)
-				return
+	// メインのスケッチかどうか判定
+	isMainSketch := false
+	var mainPath string
+	if !hasRaw {
+		if upath == "/" {
+			for _, t := range s.targets {
+				if strings.HasSuffix(strings.ToLower(t), ".js") {
+					isMainSketch = true
+					mainPath = t
+					break
+				}
+			}
+		} else if strings.HasSuffix(upath, ".js") {
+			base := filepath.Base(upath)
+			for _, t := range s.targets {
+				if filepath.Base(t) == base {
+					isMainSketch = true
+					mainPath = t
+					break
+				}
 			}
 		}
 	}
 
-	if strings.HasSuffix(upath, ".js") && !hasRaw {
-		// ラッピングして HTML を返す
-		base := filepath.Base(upath)
-		for _, t := range s.targets {
-			if filepath.Base(t) == base {
-				s.serveWrapped(w, t)
-				return
-			}
+	// メインスケッチでも、モジュール/script として要求されている場合はラップしない
+	if isMainSketch {
+		secFetchDest := r.Header.Get("Sec-Fetch-Dest")
+		accept := r.Header.Get("Accept")
+
+		// ページとして開かれた場合のみラップ
+		if secFetchDest != "script" && secFetchDest != "empty" &&
+			!strings.Contains(accept, "javascript") {
+			s.serveWrapped(w, mainPath)
+			return
 		}
 	}
 
+	// それ以外（import された utils.js など）は必ず生の JS として返す
 	filePath := filepath.Join(s.root, filepath.Clean(strings.TrimPrefix(upath, "/")))
 	if !strings.HasPrefix(filepath.Clean(filePath), filepath.Clean(s.root)) {
 		http.NotFound(w, r)
@@ -226,17 +243,24 @@ func (s *Server) handleRequest(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if strings.HasSuffix(filePath, ".js") {
+		w.Header().Set("Content-Type", "application/javascript; charset=utf-8")
 		w.Header().Set("Cache-Control", "no-store, no-cache, must-revalidate")
 		w.Header().Set("Pragma", "no-cache")
 		w.Header().Set("Expires", "0")
 	}
+
 	http.ServeFile(w, r, filePath)
 }
 
 func (s *Server) serveWrapped(w http.ResponseWriter, jsPath string) {
 	// ?raw を付けることで handleRequest 側でラッピングを回避し、生の JS を返す
-	// （<script> で読み込むときに再度 HTML でラップされるのを防ぐため）
 	src := "/" + filepath.Base(jsPath) + "?raw&t=" + fmt.Sprint(time.Now().UnixNano())
+
+	// .mod.js は type="module" で読み込む
+	scriptTag := `<script src="%s"></script>`
+	if strings.HasSuffix(filepath.Base(jsPath), ".mod.js") {
+		scriptTag = `<script type="module" src="%s"></script>`
+	}
 
 	html := fmt.Sprintf(`<!DOCTYPE html>
 <html>
@@ -273,7 +297,7 @@ Object.defineProperty(navigator, 'language', { get: () => 'en' });
 Object.defineProperty(navigator, 'languages', { get: () => ['en'] });
 </script>
 <script src="%s"></script>
-<script src="%s"></script>
+%s
 </head>
 <body>
 <script>
@@ -281,7 +305,7 @@ const es = new EventSource('/events');
 es.onmessage = () => location.reload();
 </script>
 </body>
-</html>`, s.p5URL, src)
+</html>`, s.p5URL, fmt.Sprintf(scriptTag, src))
 
 	w.Header().Set("Content-Type", "text/html; charset=utf-8")
 	w.Header().Set("Cache-Control", "no-store")

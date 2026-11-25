@@ -164,8 +164,9 @@ func recordSketch(url string, rec RecordConfig, outPath string) error {
 	}
 	size, err := chromedp.Run(taskCtx, chromedp.Evaluate[Size](fmt.Sprintf(`
         (() => {
-            if (typeof pixelDensity === "function") pixelDensity(%v);
-            if (typeof noLoop === "function") noLoop();
+            const p = window.p5Instance || window;
+            if (typeof p.pixelDensity === "function") p.pixelDensity(%v);
+            if (typeof p.noLoop === "function") p.noLoop();
             const c = document.querySelector("canvas");
             if (!c) return {width:0, height:0};
             c.style.width = "auto";
@@ -200,14 +201,17 @@ func recordSketch(url string, rec RecordConfig, outPath string) error {
 		fmt.Printf("  advancing 0/%d frames...", rec.Start)
 		for i := 0; i < rec.Start; i++ {
 			if err := chromedp.Do(taskCtx, chromedp.Evaluate[chromedp.Void](`
-            if (typeof redraw === "function") redraw();
-        `)); err != nil {
+                (() => {
+                    const p = window.p5Instance || window;
+                    if (typeof p.redraw === "function") p.redraw();
+                })()
+            `)); err != nil {
 				return fmt.Errorf("warmup redraw: %w", err)
 			}
 
 			if err := chromedp.Do(taskCtx, chromedp.Evaluate[chromedp.Void](`
-            new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)))
-        `, chromedp.EvalAwaitPromise)); err != nil {
+                new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)))
+            `, chromedp.EvalAwaitPromise)); err != nil {
 				return fmt.Errorf("warmup raf: %w", err)
 			}
 
@@ -242,13 +246,15 @@ func recordSketch(url string, rec RecordConfig, outPath string) error {
 	for i := 0; i < rec.Total; i++ {
 		// redraw
 		if err := chromedp.Do(taskCtx, chromedp.Evaluate[chromedp.Void](`
-            if (typeof redraw === "function") redraw();
+            (() => {
+                const p = window.p5Instance || window;
+                if (typeof p.redraw === "function") p.redraw();
+            })()
         `)); err != nil {
 			if errors.Is(err, context.DeadlineExceeded) || errors.Is(err, context.Canceled) {
 				return fmt.Errorf("timeout or canceled: %w", err)
 			}
 			failCount++
-			// log.Printf("FAIL %d redraw: %v", failCount, err)
 			if failCount >= maxFail {
 				return fmt.Errorf("too many consecutive frame failures (%d): %w", maxFail, err)
 			}
@@ -263,7 +269,6 @@ func recordSketch(url string, rec RecordConfig, outPath string) error {
 				return fmt.Errorf("timeout or canceled: %w", err)
 			}
 			failCount++
-			// log.Printf("FAIL %d raf: %v", failCount, err)
 			if failCount >= maxFail {
 				return fmt.Errorf("too many consecutive frame failures (%d): %w", maxFail, err)
 			}
@@ -289,7 +294,6 @@ func recordSketch(url string, rec RecordConfig, outPath string) error {
 				return fmt.Errorf("timeout or canceled: %w", err)
 			}
 			failCount++
-			// log.Printf("FAIL %d dataURL: err=%v", failCount, err)
 			if failCount >= maxFail {
 				return fmt.Errorf("too many consecutive frame failures (%d): %w", maxFail, err)
 			}
@@ -301,7 +305,6 @@ func recordSketch(url string, rec RecordConfig, outPath string) error {
 		png, err := base64.StdEncoding.DecodeString(b64)
 		if err != nil || len(png) < 100 {
 			failCount++
-			// log.Printf("FAIL %d decode: err=%v len=%d", failCount, err, len(png))
 			if failCount >= maxFail {
 				return fmt.Errorf("too many consecutive frame failures (%d): %w", maxFail, err)
 			}

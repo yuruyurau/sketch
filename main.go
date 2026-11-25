@@ -52,13 +52,13 @@ func main() {
 func runInteractive(cfg Config) {
 	os.MkdirAll(cfg.SketchDir, 0o755)
 
-	modes := `today : 今日のスケッチを開く
-fuzzy : 内容のあいまい検索
-exact : 内容の完全一致検索
-file  : ファイル名検索
-add   : スケッチ作成
-record: 録画する
-config: 設定ファイルを開く`
+	modes := `today     : 今日のスケッチを開く
+fuzzy     : 内容のあいまい検索
+exact     : 内容の完全一致検索
+file      : ファイル名検索
+add       : スケッチ作成
+record    : 録画する
+config    : 設定ファイルを開く`
 
 	selected := fzfSelect(modes, []string{
 		"--prompt", "モード> ",
@@ -76,9 +76,64 @@ config: 設定ファイルを開く`
 	switch mode {
 	case "today":
 		today := time.Now().Format("2006-01-02")
-		path := filepath.Join(cfg.SketchDir, today+".js")
-		ensureTemplate(path)
+		jsPath := filepath.Join(cfg.SketchDir, today+".js")
+		modPath := filepath.Join(cfg.SketchDir, today+".mod.js")
+
+		jsExists := fileExists(jsPath)
+		modExists := fileExists(modPath)
+
+		var path string
+		var isMod bool
+
+		switch {
+		case jsExists && !modExists:
+			path = jsPath
+			isMod = false
+		case modExists && !jsExists:
+			path = modPath
+			isMod = true
+		case jsExists && modExists:
+			sel := fzfSelect(`global   : `+today+`.js
+instance : `+today+`.mod.js`, []string{
+				"--prompt", "どちらを開く？> ",
+				"--layout", "reverse",
+				"--style", "minimal",
+				"--height", "10",
+				"--border",
+			}, "")
+			if sel == "" {
+				return
+			}
+			if strings.Contains(sel, "instance") {
+				path = modPath
+				isMod = true
+			} else {
+				path = jsPath
+				isMod = false
+			}
+		default:
+			sel := fzfSelect(`global   : グローバルモード (.js)
+instance : インスタンスモード (.mod.js)`, []string{
+				"--prompt", "新規作成> ",
+				"--layout", "reverse",
+				"--style", "minimal",
+				"--height", "10",
+				"--border",
+			}, "")
+			if sel == "" {
+				return
+			}
+			isMod = strings.HasPrefix(strings.TrimSpace(sel), "instance")
+			if isMod {
+				path = modPath
+			} else {
+				path = jsPath
+			}
+			ensureTemplate(path, isMod)
+		}
+
 		startServerAndEdit(cfg, path, "")
+
 	case "add":
 		fmt.Print("新しいスケッチ名: ")
 		scanner := bufio.NewScanner(os.Stdin)
@@ -87,12 +142,52 @@ config: 設定ファイルを開く`
 		if name == "" {
 			return
 		}
-		if !strings.HasSuffix(name, ".js") {
-			name += ".js"
+
+		var isMod *bool
+		base := name
+		lower := strings.ToLower(name)
+
+		switch {
+		case strings.HasSuffix(lower, ".mod.js"):
+			b := true
+			isMod = &b
+			base = name[:len(name)-len(".mod.js")]
+		case strings.HasSuffix(lower, ".js"):
+			b := false
+			isMod = &b
+			base = name[:len(name)-len(".js")]
 		}
-		path := filepath.Join(cfg.SketchDir, name)
-		ensureTemplate(path)
+
+		if strings.TrimSpace(base) == "" {
+			fmt.Println("無効な名前です")
+			return
+		}
+
+		if isMod == nil {
+			sel := fzfSelect(`global   : グローバルモード (.js)
+instance : インスタンスモード (.mod.js)`, []string{
+				"--prompt", "モード> ",
+				"--layout", "reverse",
+				"--style", "minimal",
+				"--height", "10",
+				"--border",
+			}, "")
+			if sel == "" {
+				return
+			}
+			mod := strings.HasPrefix(strings.TrimSpace(sel), "instance")
+			isMod = &mod
+		}
+
+		ext := ".js"
+		if *isMod {
+			ext = ".mod.js"
+		}
+
+		path := filepath.Join(cfg.SketchDir, base+ext)
+		ensureTemplate(path, *isMod)
 		startServerAndEdit(cfg, path, "")
+
 	case "file":
 		if path := selectFile(cfg.SketchDir); path != "" {
 			startServerAndEdit(cfg, path, "")
@@ -351,12 +446,38 @@ func selectByContent(sketchDir string, exact bool) (string, string) {
 	return filepath.Join(sketchDir, parts[0]), parts[1]
 }
 
-func ensureTemplate(path string) {
+func ensureTemplate(path string, isMod bool) {
 	if _, err := os.Stat(path); os.IsNotExist(err) {
 		os.MkdirAll(filepath.Dir(path), 0o755)
-		os.WriteFile(path, []byte(sketchTemplate), 0o644)
+		tmpl := sketchTemplate
+		if isMod {
+			tmpl = sketchModTemplate
+		}
+		os.WriteFile(path, []byte(tmpl), 0o644)
 	}
 }
+
+const sketchTemplate = `p5.disableFriendlyErrors = true;
+
+function setup() {
+  createCanvas(400, 400);
+}
+
+function draw() {
+  background(frameCount % 256);
+}`
+
+const sketchModTemplate = `const sketch = (p) => {
+  p.setup = () => {
+    p.createCanvas(400, 400);
+  };
+
+  p.draw = () => {
+    p.background(p.frameCount % 256);
+  };
+};
+
+window.p5Instance = new p5(sketch);`
 
 func startServerAndEdit(cfg Config, target, line string) {
 	var cmd *exec.Cmd
@@ -487,16 +608,6 @@ type Config struct {
 	P5Source    string       `json:"p5Source"`
 	P5LocalPath string       `json:"p5LocalPath"`
 }
-
-const sketchTemplate = `p5.disableFriendlyErrors = true;
-
-function setup() {
-  createCanvas(400, 400);
-}
-
-function draw() {
-  background(frameCount%256);
-}`
 
 func expandPath(p string) string {
 	if strings.HasPrefix(p, "~") {
