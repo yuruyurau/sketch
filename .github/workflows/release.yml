@@ -61,6 +61,10 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
       - uses: actions/download-artifact@v8
         with:
           path: artifacts
@@ -71,10 +75,28 @@ jobs:
           cd artifacts
           sha256sum *.zip > checksums.txt
 
+      - name: Generate release notes
+        id: notes
+        run: |
+          PREVIOUS_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+          DELIM="EOF_${GITHUB_RUN_ID}"
+          {
+            echo "body<<${DELIM}"
+            echo "## Changes"
+            if [ -z "$PREVIOUS_TAG" ]; then
+              git log --no-merges --format="- %s"
+            else
+              git log ${PREVIOUS_TAG}..HEAD --no-merges --format="- %s"
+              echo ""
+              echo "**Full Changelog**: https://github.com/${{ github.repository }}/compare/${PREVIOUS_TAG}...${{ github.ref_name }}"
+            fi
+            echo "${DELIM}"
+          } >> $GITHUB_OUTPUT
+
       - name: Create Release
         uses: softprops/action-gh-release@v3
         with:
+          body: ${{ steps.notes.outputs.body }}
           files: |
             artifacts/*.zip
             artifacts/checksums.txt
-          generate_release_notes: true
