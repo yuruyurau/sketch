@@ -89,6 +89,7 @@ Locations for `tasks.json` and `keymap.json`:
   {
     "label": "Sketch",
     "command": "sketch",
+    "cwd": "${ZED_WORKTREE_ROOT:~/Documents}",
     "reveal": "always",
     "reveal_target": "center",
     "hide": "on_success",
@@ -165,6 +166,9 @@ This makes the terminal open as an editor tab, which is easier to maximize.
       "type": "shell",
       "command": "sketch",
       "problemMatcher": [],
+      "options": {
+        "cwd": "${workspaceFolder:~/Documents}"
+      },
       "presentation": {
         "reveal": "always",
         "revealProblems": "onProblem",
@@ -513,13 +517,13 @@ Only during file / content search:
 
 #### build
 
-| Item         | Description                                                                                                     |
-| ------------ | --------------------------------------------------------------------------------------------------------------- |
-| Action       | Select a sketch and bundle it into static HTML                                                                 |
-| Requirements | [Bun](https://bun.sh) must be in your PATH                                                                     |
-| Output       | `index.html` + `bundle.js` (or single `index.html` with `--single`)                                            |
-| p5.js        | Follows `p5Source` / `p5LocalPath` in config.json                                                              |
-| Bundling     | Normal `.js` → IIFE, `.mod.js` → ESM. Relative imports are resolved automatically                              |
+| Item         | Description                                                                       |
+| ------------ | --------------------------------------------------------------------------------- |
+| Action       | Select a sketch and bundle it into static HTML                                    |
+| Requirements | [Bun](https://bun.sh) must be in your PATH                                        |
+| Output       | `index.html` + `bundle.js` (or single `index.html` with `--single`)               |
+| p5.js        | Follows `p5Source` / `p5LocalPath` in config.json                                 |
+| Bundling     | Normal `.js` → IIFE, `.mod.js` → ESM. Relative imports are resolved automatically |
 
 **CLI examples**
 

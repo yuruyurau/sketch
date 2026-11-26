@@ -87,6 +87,7 @@ Zed または VS Code の統合ターミナルから `sketch` を起動した場
   {
     "label": "Sketch",
     "command": "sketch",
+    "cwd": "${ZED_WORKTREE_ROOT:~/Documents}",
     "reveal": "always",
     "reveal_target": "center",
     "hide": "on_success",
@@ -163,6 +164,9 @@ Vim モードの場合は `:` を押して `task Sketch` と入力しても起�
       "type": "shell",
       "command": "sketch",
       "problemMatcher": [],
+      "options": {
+        "cwd": "${workspaceFolder:~/Documents}"
+      },
       "presentation": {
         "reveal": "always",
         "revealProblems": "onProblem",
