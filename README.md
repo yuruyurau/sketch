@@ -51,6 +51,18 @@ A CLI tool for managing and editing p5.js sketches.
 - [zed / zeditor](https://zed.dev)
 - [code / code-insiders](https://code.visualstudio.com/)
 
+#### Automatic editor selection (Zed / VS Code)
+
+When `sketch` is launched from the integrated terminal of Zed or VS Code, it automatically uses the corresponding editor.  
+(**Launching via tasks is recommended. Configuration examples are provided below.**)
+
+- Inside Zed terminal → `zed`
+- Inside VS Code terminal → `code`
+
+In a normal terminal, the value of `"editor"` in `config.json` is used (default: `nvim`).
+
+This detection uses environment variables that the terminals set automatically (`ZED_TERM` / `TERM_PROGRAM`), so no extra configuration is required.
+
 <details>
 <summary>Zed configuration</summary>
 

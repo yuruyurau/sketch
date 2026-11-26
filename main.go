@@ -226,7 +226,7 @@ instance : インスタンスモード (.mod.js)`, []string{
 			log.Fatal(err)
 		}
 		configPath := filepath.Join(home, ".config", "sketch", "config.json")
-		openEditor(cfg.Editor, configPath, "")
+		openEditor(resolveEditor(cfg.Editor), configPath, "")
 	default:
 		log.Println("未対応のモードです")
 	}
@@ -566,11 +566,38 @@ func startServerAndEdit(cfg Config, target, line string) {
 		}()
 	}
 
-	openEditor(cfg.Editor, target, line)
+	openEditor(resolveEditor(cfg.Editor), target, line)
 
 	if cmd != nil && cmd.Process != nil {
 		log.Printf("ポート %d は閉じられました。", cfg.Server.Port)
 	}
+}
+
+func resolveEditor(cfgEditor string) string {
+	termProgram := os.Getenv("TERM_PROGRAM")
+
+	if os.Getenv("ZED_TERM") == "true" || termProgram == "zed" {
+		switch cfgEditor {
+		case "zed", "zeditor":
+			return cfgEditor
+		default:
+			return "zed"
+		}
+	}
+
+	if termProgram == "vscode" {
+		switch cfgEditor {
+		case "code", "code-insiders":
+			return cfgEditor
+		default:
+			return "code"
+		}
+	}
+
+	if cfgEditor == "" {
+		return "nvim"
+	}
+	return cfgEditor
 }
 
 func openEditor(editor, target, line string) {
