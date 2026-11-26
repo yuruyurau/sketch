@@ -347,6 +347,21 @@ mv sketch ~/.local/bin/
 | `browser.path` | 使用するブラウザのパス（空ならデフォルト） | `""`       |
 | `browser.args` | ブラウザに渡す引数                         | `[]`       |
 
+> **補足: バックグラウンド時のスロットリング抑制（Chrome / Chromium）**
+>
+> プレビュー用ブラウザがフォーカスを失うと（エディタを操作している間など）、Chrome/Chromium はタイマーや `requestAnimationFrame` を大幅にスロットリングします。  
+> アニメーションをフルスピードで維持したい場合は、`server.browser.args` に以下を追加してください。
+>
+> ```json
+> "args": [
+>   "--disable-renderer-backgrounding",
+>   "--disable-background-timer-throttling",
+>   "--disable-backgrounding-occluded-windows"
+> ]
+> ```
+>
+> Firefox には同等のコマンドラインフラグが存在しません。Firefox では主に `about:config` の設定で制御します。
+
 ### record
 
 | キー           | 説明                         | 備考                                               |

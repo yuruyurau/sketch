@@ -349,6 +349,21 @@ To use a local file:
 | `browser.path` | Browser executable (empty = system default) | `""`    |
 | `browser.args` | Extra arguments for the browser             | `[]`    |
 
+> **Note: Preventing background throttling (Chrome / Chromium)**
+>
+> When the preview browser loses focus (e.g. while editing in another window), Chrome/Chromium may throttle timers and `requestAnimationFrame`.  
+> To keep animations running at full speed, add the following to `server.browser.args`:
+>
+> ```json
+> "args": [
+>   "--disable-renderer-backgrounding",
+>   "--disable-background-timer-throttling",
+>   "--disable-backgrounding-occluded-windows"
+> ]
+> ```
+>
+> These flags have no equivalent on Firefox. Firefox controls background throttling mainly through `about:config` preferences, and full command-line control is not available.
+
 ### record
 
 | Key            | Description                               | Notes                                          |
