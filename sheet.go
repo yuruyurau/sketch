@@ -532,7 +532,7 @@ func captureSketchFrames(cfg Config, sketchPath string, frames []int, outDir str
 	}
 
 	var captured []string
-	current := 0
+	current := -1
 
 	for idx, target := range frames {
 		fmt.Printf("\r%d/%d", idx+1, len(frames))
