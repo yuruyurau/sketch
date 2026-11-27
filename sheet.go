@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"context"
 	"encoding/base64"
 	"fmt"
@@ -71,6 +72,7 @@ quit     : キャンセル`, []string{
 		}
 	}
 
+	fmt.Println("Opening options...")
 	opts := selectSheetOptions(len(sketches), cfg.Record.PixelDensity)
 	if opts == nil {
 		return
@@ -655,45 +657,43 @@ func selectSheetOptions(sketchCount int, defaultPD float64) *sheetOpts {
 			labelDisplay = "off"
 		}
 
-		menu := fmt.Sprintf(`frames      : %s
-pixelDensity: %g
-geometry    : %s
-columns     : %s
-label       : %s
-background  : %s
-fill        : %s
-done        : 始める
-quit        : キャンセル`,
-			opts.frames,
-			opts.pixelDensity,
-			opts.geometry,
-			columnsDisplay,
-			labelDisplay,
-			opts.background,
-			opts.fill,
-		)
+		// infoLines := []string{
+		// 	fmt.Sprintf("target → %d sketches × %d frames = %d images", sketchCount, len(frames), total),
+		// 	fmt.Sprintf("frames → %s", framesPreview),
+		// 	fmt.Sprintf("layout → %s", layout),
+		// 	"",
+		// }
+		infoLines := []string{
+			fmt.Sprintf("total  → %d", total),
+			fmt.Sprintf("frames → %d (%s)", len(frames), framesPreview),
+			fmt.Sprintf("layout → %s", layout),
+			"",
+		}
 
-		info := fmt.Sprintf(`target → %dsketch × %dframes = %dimages
-frames → %s
-layout → %s
+		menuLines := []string{
+			fmt.Sprintf("frames      : %s", opts.frames),
+			fmt.Sprintf("pixelDensity: %g", opts.pixelDensity),
+			fmt.Sprintf("geometry    : %s", opts.geometry),
+			fmt.Sprintf("columns     : %s", columnsDisplay),
+			fmt.Sprintf("label       : %s", labelDisplay),
+			fmt.Sprintf("background  : %s", opts.background),
+			fmt.Sprintf("fill        : %s", opts.fill),
+			"help        : framesの書き方",
+			"done        : 始める",
+			"quit        : キャンセル",
+		}
 
-frames: 30 / 1 5 / 1..5 / 0..10..2 / 0..100/5
-range = start..<end..step, /n = n equal parts`,
-			sketchCount, len(frames), total,
-			framesPreview,
-			layout,
-		)
+		input := strings.Join(append(infoLines, menuLines...), "\n")
 
-		selected := fzfSelect(menu, []string{
+		selected := fzfSelect(input, []string{
 			"--prompt", "sheet> ",
 			"--layout", "reverse",
 			"--style", "minimal",
-			"--margin", "3,7",
-			"--height", "26",
+			"--margin", "1,7",
+			"--height", "20",
 			"--border",
-			"--footer", info,
-			"--footer-border", "none",
-			"--color", "footer:-1",
+			"--header-lines", strconv.Itoa(len(infoLines)),
+			"--color", "header:-1",
 		}, "")
 
 		if selected == "" || strings.HasPrefix(selected, "quit") {
@@ -760,6 +760,20 @@ range = start..<end..step, /n = n equal parts`,
 					fmt.Println("invalid color")
 				}
 			}
+		case "help":
+			fmt.Println()
+			fmt.Println("frames syntax:")
+			fmt.Println("  30              → frame 30")
+			fmt.Println("  1 5 10          → frames 1, 5, 10")
+			fmt.Println("  1..5            → frames 1,2,3,4,5")
+			fmt.Println("  0..10..2        → frames 0,2,4,6,8,10")
+			fmt.Println("  0..100/5        → 5 equal parts of 0..100")
+			fmt.Println()
+			fmt.Println("range = start..<end..step")
+			fmt.Println("/n   = n equal parts")
+			fmt.Println()
+			fmt.Print("Press Enter to return...")
+			bufio.NewReader(os.Stdin).ReadString('\n')
 		case "done":
 			return opts
 		}
