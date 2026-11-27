@@ -21,6 +21,7 @@ A CLI tool for managing and editing p5.js sketches.
 - A browser (for preview)
 - An editor (any of the supported editors listed below; default is nvim)
 - [Bun](https://bun.sh) (for `sketch build`)
+- [ImageMagick](https://imagemagick.org/) (`magick`) (for `sheet`)
 
 <details>
 <summary>Homebrew / Scoop / Winget</summary>
@@ -394,6 +395,8 @@ sketch
 │   │   └── Select file + options → start recording server → chromedp + ffmpeg
 │   ├── build
 │   │   └── Select file + options → bundle with Bun → write static HTML
+│   ├── sheet
+│   │   └── Select sketch(es) + frames → capture → ImageMagick contact sheet
 │   └── config
 │       └── Open config.json
 │
@@ -418,6 +421,7 @@ https://github.com/user-attachments/assets/37e20539-2a49-4cc4-a0ff-eb6a9a268570
 | add    | Create a new sketch. After entering the name, choose global or instance mode (unless the extension is explicitly specified).                    |
 | record | Record a sketch                                                                                                                                 |
 | build  | Bundle a sketch into static HTML (requires Bun)                                                                                                 |
+| sheet  | Create a contact sheet (requires ImageMagick)                                                                                                   |
 | config | Open the config file (config.json)                                                                                                              |
 
 > **About search**
@@ -560,6 +564,31 @@ sketch build --single --outdir ~/export path/to/sketch.mod.js
 | `--single` | Output a single self-contained HTML file | false   |
 
 In interactive mode, the default output directory is `sketchDir/dist`.
+
+#### sheet
+
+| Item         | Description                                                                          |
+| ------------ | ------------------------------------------------------------------------------------ |
+| Action       | Capture selected frames from one or more sketches and generate a contact sheet       |
+| Requirements | `magick` (ImageMagick) must be in PATH. Uses the same Chrome settings as recording   |
+| Target       | `all` (all sketches) or `one` (select one)                                           |
+| Output       | `sketchDir/sheet/sheet-YYYYMMDD_HHMMSS.png`                                          |
+| Options      | frames / pixelDensity / geometry / columns / label / background / fill (interactive) |
+
+**frames syntax**
+
+- `30` → frame 30
+- `1 5` / `1,5` → multiple frames
+- `0..10` → 0 ≤ n < 10 (end exclusive)
+- `0..10..2` → with step
+- `0..100/5` → divide the range into 5 equal parts
+
+**Other notes**
+
+- When `columns` is left at the default (empty), the layout is automatically set to a near-square grid
+- `geometry` uses ImageMagick’s `-geometry` format (e.g. `200x200+6+6`, or just `100x100`)
+- The full sketch list is generated with `fd` (`.js` files). Sketches listed in `.ignore` (or `.gitignore`) are excluded
+- Partial capture failures still produce a sheet; a summary of captured / expected images is shown at the end
 
 #### config
 

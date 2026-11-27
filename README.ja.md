@@ -21,6 +21,7 @@ p5.js のスケッチを管理・編集するための CLI ツール。
 - ブラウザ（プレビュー用）
 - エディタ（後述の対応エディタのいずれか。デフォルトは nvim）
 - [Bun](https://bun.sh)（`sketch build` 用）
+- [ImageMagick](https://imagemagick.org/)（`magick`）（`sheet` 用）
 
 <details>
 <summary>Homebrew / Scoop / Winget</summary>
@@ -392,6 +393,8 @@ sketch
 │   │   └── ファイル＋オプション選択 → 録画用サーバー起動 → chromedp + ffmpeg
 │   ├── build
 │   │   └── ファイル＋オプション選択 → Bun でバンドル → 静的 HTML 出力
+│   ├── sheet
+│   │   └── スケッチ（＋フレーム）選択 → キャプチャ → ImageMagick でコンタクトシート生成
 │   └── config
 │       └── 設定ファイルを開く
 │
@@ -416,6 +419,7 @@ https://github.com/user-attachments/assets/37e20539-2a49-4cc4-a0ff-eb6a9a268570
 | add    | 新しいスケッチを作成。名前入力後に global / instance を選択（拡張子を明示した場合はスキップ）。           |
 | record | 録画する                                                                                                  |
 | build  | スケッチを静的 html にバンドルする（bun が必要）                                                          |
+| sheet  | コンタクトシートを作る（ImageMagick が必要）                                                              |
 | config | 設定ファイル（config.json）を開く                                                                         |
 
 > **検索について**
@@ -558,6 +562,31 @@ sketch build --single --outdir ~/export path/to/sketch.mod.js
 | `--single` | 単一の自己完結 HTML ファイルとして出力 | false      |
 
 対話モードでのデフォルト出力先は `sketchDir/dist` です。
+
+#### sheet
+
+| 項目       | 内容                                                                                      |
+| ---------- | ----------------------------------------------------------------------------------------- |
+| 動作       | スケッチ（または全スケッチ）から指定フレームをキャプチャし、コンタクトシートを生成する    |
+| 要件       | PATH に `magick`（ImageMagick）が必要。録画と同じ Chrome 設定を使用                       |
+| 対象       | `all`（全スケッチ）または `one`（ひとつ選択）                                             |
+| 出力先     | `sketchDir/sheet/sheet-YYYYMMDD_HHMMSS.png`                                               |
+| オプション | frames / pixelDensity / geometry / columns / label / background / fill を対話的に設定可能 |
+
+**frames の記法**
+
+- `30` → フレーム 30
+- `1 5` / `1,5` → 複数指定
+- `0..10` → 0 以上 10 未満（end 含まず）
+- `0..10..2` → ステップ指定
+- `0..100/5` → 範囲を 5 等分
+
+**その他**
+
+- `columns` をデフォルトのまま（空）にしておくと、自動で正方形に近いレイアウトになる
+- `geometry` は ImageMagick の `-geometry` 形式（例: `200x200+6+6`、`100x100` も可）
+- 全スケッチのリストは `fd` で `.js` ファイルを探して作成される。`.ignore`（や `.gitignore`）に書かれたスケッチは除外される
+- キャプチャに一部失敗しても可能な限りシートを作り、最後に成功枚数を表示する
 
 #### config
 

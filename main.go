@@ -64,6 +64,7 @@ file      : ファイル名検索
 add       : スケッチ作成
 record    : 録画する
 build     : ビルドする
+sheet     : コンタクトシートを作る
 config    : 設定ファイルを開く`
 
 	selected := fzfSelect(modes, []string{
@@ -220,6 +221,8 @@ instance : インスタンスモード (.mod.js)`, []string{
 			return
 		}
 		runBuildInteractive(cfg, path)
+	case "sheet":
+		sheetInteractive(cfg)
 	case "config":
 		home, err := os.UserHomeDir()
 		if err != nil {
