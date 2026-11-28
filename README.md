@@ -134,6 +134,22 @@ https://github.com/user-attachments/assets/37e20539-2a49-4cc4-a0ff-eb6a9a268570
 
 See [docs/modes.md](docs/modes.md) for details.
 
+### File organization
+
+Most sketches are a single file (`YYYY-MM-DD.js` or `.mod.js`).  
+The local server roots at the directory of the opened file, so relative paths work for assets and helper scripts in the same folder or subfolders. `../` is blocked.
+
+```
+~/Documents/sketches/
+├── 2026-11-28.js          ← open this → this dir is root
+├── photo.png              ← ./photo.png works
+└── project-a/
+    ├── main.js            ← open this → project-a/ is root
+    └── assets/image.png   ← ./assets/image.png works
+```
+
+See [docs/advanced.md](docs/advanced.md) for details.
+
 ### About search
 
 - `file` uses `fd` to list files.

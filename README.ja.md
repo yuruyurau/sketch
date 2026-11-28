@@ -134,6 +134,22 @@ https://github.com/user-attachments/assets/37e20539-2a49-4cc4-a0ff-eb6a9a268570
 
 詳細は [docs/modes.ja.md](docs/modes.ja.md) を参照。
 
+### ファイルの置き方
+
+普段は **1ファイル**（`YYYY-MM-DD.js` や `.mod.js`）で管理します。  
+サーバーのルートは開いたファイルがあるディレクトリになるので、同じ階層やサブフォルダにあるアセット・補助スクリプトは相対パスで読めます。`../` はブロックされます。
+
+```
+~/Documents/sketches/
+├── 2026-11-28.js          ← これを開くとこのディレクトリがルート
+├── photo.png              ← ./photo.png で読める
+└── project-a/
+    ├── main.js            ← これを開くと project-a/ がルート
+    └── assets/image.png   ← ./assets/image.png で読める
+```
+
+詳細は [docs/advanced.ja.md](docs/advanced.ja.md) を参照。
+
 ### 検索について
 
 - `file` は `fd` でファイルを列挙します。
