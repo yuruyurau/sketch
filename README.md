@@ -181,3 +181,10 @@ sketch
 - [Recording & Contact Sheet](docs/recording.md)
 - [Building from source](docs/building.md)
 - [Using multiple files / instance mode](docs/advanced.md)
+
+## Related
+
+- [vid_encode.nu](https://gist.github.com/yuruyurau/e56e2f9bbd9e0a74d7000eabc4975810)  
+  A video encoding script for creative coding.  
+  High-quality output for X / YouTube.  
+  Includes a vifm command example.

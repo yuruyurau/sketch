@@ -181,3 +181,10 @@ sketch
 - [録画・コンタクトシート](docs/recording.ja.md)
 - [ソースからのビルド](docs/building.ja.md)
 - [マルチファイル / インスタンスモード](docs/advanced.ja.md)
+
+## Related
+
+- [vid_encode.nu](https://gist.github.com/yuruyurau/e56e2f9bbd9e0a74d7000eabc4975810)  
+  creative coding向けの動画encodeスクリプト。  
+  X / YouTube用に高品質で書き出せます。  
+  vifmのコマンド例も記載しています。
