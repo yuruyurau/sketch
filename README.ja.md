@@ -64,16 +64,18 @@ mv sketch /usr/local/bin/
 
 ## 必要環境
 
-- [fzf](https://github.com/junegunn/fzf)
-- [fd](https://github.com/sharkdp/fd)
-- [ripgrep](https://github.com/BurntSushi/ripgrep)
-- [bat](https://github.com/sharkdp/bat)
-- [ffmpeg](https://github.com/FFmpeg/FFmpeg)（録画用）
-- Chrome / Chromium または [Chrome for Testing](https://github.com/GoogleChromeLabs/chrome-for-testing)（録画用）
-- ブラウザ（プレビュー用）
-- エディタ（デフォルトは `nvim`）
-- [Bun](https://bun.sh)（`build` 用）
-- [ImageMagick](https://imagemagick.org/)（`magick`）（`sheet` 用）
+| ツール / 環境                                                                                         | 用途                 | 備考                                          |
+| ----------------------------------------------------------------------------------------------------- | -------------------- | --------------------------------------------- |
+| [fzf](https://github.com/junegunn/fzf)                                                                | モード選択・絞り込み | インタラクティブな絞り込み                    |
+| [fd](https://github.com/sharkdp/fd)                                                                   | ファイル一覧取得     | `file` モード用                               |
+| [ripgrep](https://github.com/BurntSushi/ripgrep)                                                      | 内容の行一覧取得     | `fuzzy` / `exact` モード用                    |
+| [bat](https://github.com/sharkdp/bat)                                                                 | プレビュー           | fzf の preview 用                             |
+| ブラウザ                                                                                              | プレビュー           | 任意のモダンブラウザ                          |
+| エディタ                                                                                              | 編集                 | 対応エディタのいずれか（デフォルトは `nvim`） |
+| [ffmpeg](https://github.com/FFmpeg/FFmpeg)                                                            | 録画                 | `record` モード用                             |
+| Chrome / Chromium または [Chrome for Testing](https://github.com/GoogleChromeLabs/chrome-for-testing) | 録画                 | `record` モード用                             |
+| [Bun](https://bun.sh)                                                                                 | ビルド               | `build` モード用                              |
+| [ImageMagick](https://imagemagick.org/) (`magick`)                                                    | コンタクトシート     | `sheet` モード用                              |
 
 <details>
 <summary>Homebrew / Scoop / Winget</summary>

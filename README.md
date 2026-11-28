@@ -64,16 +64,18 @@ mv sketch /usr/local/bin/
 
 ## Requirements
 
-- [fzf](https://github.com/junegunn/fzf)
-- [fd](https://github.com/sharkdp/fd)
-- [ripgrep](https://github.com/BurntSushi/ripgrep)
-- [bat](https://github.com/sharkdp/bat)
-- [ffmpeg](https://github.com/FFmpeg/FFmpeg) (for recording)
-- Chrome / Chromium or [Chrome for Testing](https://github.com/GoogleChromeLabs/chrome-for-testing) (for recording)
-- A browser (for preview)
-- An editor (default: `nvim`)
-- [Bun](https://bun.sh) (for `build`)
-- [ImageMagick](https://imagemagick.org/) (`magick`) (for `sheet`)
+| Tool / Environment                                                                                | Purpose                    | Notes                                            |
+| ------------------------------------------------------------------------------------------------- | -------------------------- | ------------------------------------------------ |
+| [fzf](https://github.com/junegunn/fzf)                                                            | Mode selection & filtering | Interactive filtering                            |
+| [fd](https://github.com/sharkdp/fd)                                                               | File listing               | For `file` mode                                  |
+| [ripgrep](https://github.com/BurntSushi/ripgrep)                                                  | Content line listing       | For `fuzzy` / `exact` modes                      |
+| [bat](https://github.com/sharkdp/bat)                                                             | Preview                    | For fzf preview                                  |
+| Browser                                                                                           | Preview                    | Any modern browser                               |
+| Editor                                                                                            | Editing                    | One of the supported editors (default is `nvim`) |
+| [ffmpeg](https://github.com/FFmpeg/FFmpeg)                                                        | Recording                  | For `record` mode                                |
+| Chrome / Chromium or [Chrome for Testing](https://github.com/GoogleChromeLabs/chrome-for-testing) | Recording                  | For `record` mode                                |
+| [Bun](https://bun.sh)                                                                             | Build                      | For `build` mode                                 |
+| [ImageMagick](https://imagemagick.org/) (`magick`)                                                | Contact sheet              | For `sheet` mode                                 |
 
 <details>
 <summary>Homebrew / Scoop / Winget</summary>
