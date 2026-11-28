@@ -8,7 +8,7 @@
 
 p5.js のスケッチを管理・編集するための CLI ツール。
 
-![sketch](.github/sketch.webp)
+![sketch](.github/sketch_social.webp)
 
 ## Quick Start
 
@@ -75,7 +75,7 @@ mv sketch /usr/local/bin/
 | [ffmpeg](https://github.com/FFmpeg/FFmpeg)                                                            | 録画                 | `record` モード用                             |
 | Chrome / Chromium または [Chrome for Testing](https://github.com/GoogleChromeLabs/chrome-for-testing) | 録画                 | `record` モード用                             |
 | [Bun](https://bun.sh)                                                                                 | ビルド               | `build` モード用                              |
-| [ImageMagick](https://imagemagick.org/) (`magick`)                                                    | コンタクトシート     | `sheet` モード用                              |
+| [ImageMagick](https://imagemagick.org/)                                                               | コンタクトシート     | `sheet` モード用                              |
 
 <details>
 <summary>Homebrew / Scoop / Winget</summary>

@@ -8,7 +8,7 @@ For writing every day.
 
 A CLI tool for managing and editing p5.js sketches.
 
-![sketch](.github/sketch.webp)
+![sketch](.github/sketch_social.webp)
 
 ## Quick Start
 
@@ -75,7 +75,7 @@ mv sketch /usr/local/bin/
 | [ffmpeg](https://github.com/FFmpeg/FFmpeg)                                                        | Recording                  | For `record` mode                                |
 | Chrome / Chromium or [Chrome for Testing](https://github.com/GoogleChromeLabs/chrome-for-testing) | Recording                  | For `record` mode                                |
 | [Bun](https://bun.sh)                                                                             | Build                      | For `build` mode                                 |
-| [ImageMagick](https://imagemagick.org/) (`magick`)                                                | Contact sheet              | For `sheet` mode                                 |
+| [ImageMagick](https://imagemagick.org/)                                                           | Contact sheet              | For `sheet` mode                                 |
 
 <details>
 <summary>Homebrew / Scoop / Winget</summary>
