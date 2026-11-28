@@ -150,6 +150,7 @@ https://github.com/user-attachments/assets/37e20539-2a49-4cc4-a0ff-eb6a9a268570
 | `Ctrl+Q` または `Esc`                | キャンセル                                |
 | `Ctrl+T`                             | プレビューの表示/非表示（検索モードのみ） |
 | `Shift+J` / `Shift+K`                | プレビューをスクロール（検索モードのみ）  |
+| `Tab` / `Shift+Tab`                  | 選択のトグル（sheet multi）               |
 
 ### Architecture
 

@@ -150,6 +150,7 @@ See [docs/modes.md](docs/modes.md) for details.
 | `Ctrl+Q` or `Esc`                | Cancel                             |
 | `Ctrl+T`                         | Toggle preview (search modes only) |
 | `Shift+J` / `Shift+K`            | Scroll preview (search modes only) |
+| `Tab` / `Shift+Tab`              | Toggle selection (sheet multi)     |
 
 ### Architecture
 

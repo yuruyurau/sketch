@@ -27,6 +27,7 @@ func sheetInteractive(cfg Config) {
 
 	targetMode := fzfSelect(`all      : すべて
 one      : ひとつ
+multi    : えらぶ
 quit     : キャンセル`, []string{
 		"--prompt", "対象> ",
 		"--layout", "reverse",
@@ -34,18 +35,27 @@ quit     : キャンセル`, []string{
 		"--height", "10",
 		"--border",
 	}, "")
+
 	if targetMode == "" || strings.HasPrefix(targetMode, "quit") {
 		return
 	}
 
 	var sketches []string
-	if strings.HasPrefix(targetMode, "one") {
+	switch {
+	case strings.HasPrefix(targetMode, "one"):
 		path := selectFile(cfg.SketchDir)
 		if path == "" {
 			return
 		}
 		sketches = []string{path}
-	} else {
+
+	case strings.HasPrefix(targetMode, "multi"):
+		sketches = selectFiles(cfg.SketchDir)
+		if len(sketches) == 0 {
+			return
+		}
+
+	default: // all
 		sketches = listSketches(cfg.SketchDir)
 		if len(sketches) == 0 {
 			log.Println("no sketches found")

@@ -484,6 +484,49 @@ func selectFile(sketchDir string) string {
 	return filepath.Join(sketchDir, selected)
 }
 
+func selectFiles(sketchDir string) []string {
+	args := []string{
+		"--type", "f",
+		"--extension", "js",
+		"--hidden",
+		"--follow",
+		"--exclude", ".git",
+		"--no-require-git",
+		".",
+	}
+	fd := exec.Command("fd", args...)
+	fd.Dir = sketchDir
+	out, err := fd.Output()
+	if err != nil {
+		return nil
+	}
+
+	selected := fzfSelect(string(out), []string{
+		"--multi",
+		"--layout", "reverse",
+		"--style", "minimal",
+		"--margin", "4,7",
+		"--preview", "bat --style=plain --color=always --wrap=never {}",
+		"--preview-window", "hidden,border,right,60%",
+		"--bind", "ctrl-t:toggle-preview,J:preview-down,K:preview-up,ctrl-q:abort,ctrl-a:select-all,ctrl-d:deselect-all",
+		"--cycle",
+		"--prompt", "select (Tab/Shift-Tab)> ",
+	}, sketchDir)
+
+	if selected == "" {
+		return nil
+	}
+
+	var paths []string
+	for _, line := range strings.Split(selected, "\n") {
+		line = strings.TrimSpace(line)
+		if line != "" {
+			paths = append(paths, filepath.Join(sketchDir, line))
+		}
+	}
+	return paths
+}
+
 func selectByContent(sketchDir string, exact bool) (string, string) {
 	args := []string{
 		"--line-number",

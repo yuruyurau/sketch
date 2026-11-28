@@ -102,9 +102,20 @@ sketch build --outdir ./public path/to/sketch.js
 
 - PATH に `magick`（ImageMagick）が必要
 - 録画と同じ Chrome 設定を使用
-- 対象: `all` または `one`
+- 対象: `all` / `one` / `multi`
 - 出力先: `sketchDir/sheet/sheet-YYYYMMDD_HHMMSS.png`
 - オプション: frames / pixelDensity / geometry / columns / label / background / fill
+
+**multi-select のキー操作**
+
+| キー             | 動作                   |
+| ---------------- | ---------------------- |
+| `Tab`            | トグルして下へ移動     |
+| `Shift+Tab`      | トグルして上へ移動     |
+| `Ctrl+A`         | 全選択（現在のマッチ） |
+| `Ctrl+D`         | 全解除                 |
+| `Enter`          | 確定                   |
+| `Ctrl+Q` / `Esc` | キャンセル             |
 
 **frames の記法**
 

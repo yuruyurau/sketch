@@ -102,9 +102,20 @@ Captures selected frames and generates a contact sheet.
 
 - Requires `magick` (ImageMagick) in PATH
 - Uses the same Chrome settings as recording
-- Target: `all` or `one`
+- Target: `all` / `one` / `multi`
 - Output: `sketchDir/sheet/sheet-YYYYMMDD_HHMMSS.png`
 - Options: frames / pixelDensity / geometry / columns / label / background / fill
+
+**multi-select keybindings**
+
+| Key              | Action                     |
+| ---------------- | -------------------------- |
+| `Tab`            | Toggle and move down       |
+| `Shift+Tab`      | Toggle and move up         |
+| `Ctrl+A`         | Select all (current match) |
+| `Ctrl+D`         | Deselect all               |
+| `Enter`          | Confirm                    |
+| `Ctrl+Q` / `Esc` | Cancel                     |
 
 **frames syntax**
 
