@@ -54,12 +54,24 @@ Creates (or opens) a sketch.
 
 ## record
 
-Selects a sketch and records it.
+Select one or more sketches (fzf multi-select) and record them sequentially.
 
 - Before start you can change fps / total / start / codec / crf / pixelDensity / timeout / maxFail / p5Version / p5Source etc.
 - Output goes to `outDir` from config
+- Filename includes the sketch name (e.g. `sketchname_20261128_135000.mp4`)
 - Format: `vp9` → webm, otherwise mp4
 - Temporarily starts a server on `record.port` (does not start if already in use)
+
+**multi-select keybindings**
+
+| Key              | Action                     |
+| ---------------- | -------------------------- |
+| `Tab`            | Toggle and move down       |
+| `Shift+Tab`      | Toggle and move up         |
+| `Ctrl+A`         | Select all (current match) |
+| `Ctrl+D`         | Deselect all               |
+| `Enter`          | Confirm                    |
+| `Ctrl+Q` / `Esc` | Cancel                     |
 
 > **About `total` and `start`**
 >

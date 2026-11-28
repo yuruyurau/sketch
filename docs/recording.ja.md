@@ -6,7 +6,7 @@
 
 ## record
 
-スケッチを選んで動画として録画します。
+スケッチを1つ以上選択（fzf multi-select）し、順番に動画として録画します。
 
 録画開始前に、以下の値を上書きできます（Enter でデフォルトのまま進めることもできます）。
 
@@ -24,7 +24,19 @@
 | p5Source     | p5.js の読み込み元             |                                      |
 
 出力先は config の `outDir` です。  
+ファイル名にスケッチ名が含まれます（例: `sketchname_20261128_135000.mp4`）。  
 `record.port` で一時的なサーバーを起動します（使用中の場合は録画を開始しません）。
+
+**multi-select のキー操作**
+
+| キー             | 動作                   |
+| ---------------- | ---------------------- |
+| `Tab`            | トグルして下へ移動     |
+| `Shift+Tab`      | トグルして上へ移動     |
+| `Ctrl+A`         | 全選択（現在のマッチ） |
+| `Ctrl+D`         | 全解除                 |
+| `Enter`          | 確定                   |
+| `Ctrl+Q` / `Esc` | キャンセル             |
 
 録画には `record.browser.path` で指定した Chrome/Chromium バイナリを使用します（必須、ヘッドレスで起動）。
 
@@ -40,12 +52,23 @@
 
 ## sheet
 
-1つまたは複数のスケッチから指定フレームをキャプチャし、コンタクトシート画像を生成します。
+選択したフレームをキャプチャしてコンタクトシート画像を生成します。
 
-- PATH に `magick`（ImageMagick）が必要です。
-- 録画と同じ Chrome 設定を使用します。
-- 対象: `all` または `one`。
-- 出力先: `sketchDir/sheet/sheet-YYYYMMDD_HHMMSS.png`。
+- PATH に `magick`（ImageMagick）が必要
+- 録画と同じ Chrome 設定を使用
+- 対象: `all` / `one` / `multi`
+- 出力先: `sketchDir/sheet/sheet-YYYYMMDD_HHMMSS.png`
+
+**multi-select のキー操作**
+
+| キー             | 動作                   |
+| ---------------- | ---------------------- |
+| `Tab`            | トグルして下へ移動     |
+| `Shift+Tab`      | トグルして上へ移動     |
+| `Ctrl+A`         | 全選択（現在のマッチ） |
+| `Ctrl+D`         | 全解除                 |
+| `Enter`          | 確定                   |
+| `Ctrl+Q` / `Esc` | キャンセル             |
 
 ### オプション
 

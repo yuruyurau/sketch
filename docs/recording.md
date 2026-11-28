@@ -6,7 +6,7 @@
 
 ## record
 
-Select a sketch and record it as a video.
+Select one or more sketches (fzf multi-select) and record them sequentially as video.
 
 Before recording starts you can override the following values (press Enter to accept the default):
 
@@ -24,7 +24,20 @@ Before recording starts you can override the following values (press Enter to ac
 | p5Source     | Source of p5.js                |                                                            |
 
 Output directory is `outDir` from config.  
+Filename includes the sketch name (e.g. `sketchname_20261128_135000.mp4`)
+
 A temporary server is started on `record.port` (recording will not start if the port is already in use).
+
+**multi-select keybindings**
+
+| Key              | Action                     |
+| ---------------- | -------------------------- |
+| `Tab`            | Toggle and move down       |
+| `Shift+Tab`      | Toggle and move up         |
+| `Ctrl+A`         | Select all (current match) |
+| `Ctrl+D`         | Deselect all               |
+| `Enter`          | Confirm                    |
+| `Ctrl+Q` / `Esc` | Cancel                     |
 
 Recording uses the Chrome/Chromium binary specified in `record.browser.path` (required, launched headless).
 
@@ -44,8 +57,19 @@ Captures selected frames from one or more sketches and generates a contact sheet
 
 - Requires `magick` (ImageMagick) in PATH.
 - Uses the same Chrome settings as recording.
-- Target: `all` or `one`.
+- Target: `all` / `one` / `multi`
 - Output: `sketchDir/sheet/sheet-YYYYMMDD_HHMMSS.png`.
+
+**multi-select keybindings**
+
+| Key              | Action                     |
+| ---------------- | -------------------------- |
+| `Tab`            | Toggle and move down       |
+| `Shift+Tab`      | Toggle and move up         |
+| `Ctrl+A`         | Select all (current match) |
+| `Ctrl+D`         | Deselect all               |
+| `Enter`          | Confirm                    |
+| `Ctrl+Q` / `Esc` | Cancel                     |
 
 ### Options
 

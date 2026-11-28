@@ -54,12 +54,24 @@
 
 ## record
 
-スケッチを選んで録画する。
+スケッチを1つ以上選択（fzf multi-select）し、順番に録画する。
 
 - 開始前に fps / total / start / codec / crf / pixelDensity / timeout / maxFail / p5Version / p5Source などを変更可能
 - 出力先は config の `outDir`
-- 形式: `vp9` → webm、それ以外 → mp4
-- `record.port` で一時的にサーバーを起動（使用中なら起動しない）
+- ファイル名にスケッチ名が含まれます（例: `sketchname_20261128_135000.mp4`）
+- 形式: `vp9` → webm、それ以外は mp4
+- `record.port` で一時的にサーバーを起動（使用中なら開始しない）
+
+**multi-select のキー操作**
+
+| キー             | 動作                   |
+| ---------------- | ---------------------- |
+| `Tab`            | トグルして下へ移動     |
+| `Shift+Tab`      | トグルして上へ移動     |
+| `Ctrl+A`         | 全選択（現在のマッチ） |
+| `Ctrl+D`         | 全解除                 |
+| `Enter`          | 確定                   |
+| `Ctrl+Q` / `Esc` | キャンセル             |
 
 > **`total` と `start` について**
 >

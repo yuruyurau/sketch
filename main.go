@@ -206,15 +206,17 @@ instance : インスタンスモード (.mod.js)`, []string{
 	// case "server":
 	// 	startServerOnly(cfg.SketchDir)
 	case "record":
-		path := selectFile(cfg.SketchDir)
-		if path == "" {
+		sketches := selectFiles(cfg.SketchDir)
+		if len(sketches) == 0 {
 			return
 		}
 		rec, p5Version, p5Source := selectRecordOptions(cfg.Record, cfg.P5Version, cfg.P5Source)
 		if rec == nil {
 			return
 		}
-		recordInteractive(cfg, path, *rec, p5Version, p5Source)
+		for _, path := range sketches {
+			recordInteractive(cfg, path, *rec, p5Version, p5Source)
+		}
 	case "build":
 		path := selectFile(cfg.SketchDir)
 		if path == "" {

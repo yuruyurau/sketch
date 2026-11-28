@@ -94,7 +94,11 @@ func recordInteractive(cfg Config, sketchPath string, rec RecordConfig, p5Versio
 	if strings.ToLower(rec.Codec) != "vp9" {
 		ext = "mp4"
 	}
-	out := filepath.Join(cfg.OutDir, time.Now().Format("20060102_150405")+"."+ext)
+	base := strings.TrimSuffix(filepath.Base(sketchPath), filepath.Ext(sketchPath))
+	if strings.HasSuffix(base, ".mod") {
+		base = strings.TrimSuffix(base, ".mod")
+	}
+	out := filepath.Join(cfg.OutDir, base+"_"+time.Now().Format("20060102_150405")+"."+ext)
 
 	log.Printf("  → %s", pretty(out))
 
