@@ -303,6 +303,7 @@ func selectRecordOptions(base RecordConfig, p5Version, p5Source string) (*Record
 			fmt.Sprintf("p5Source    : %s", p5Source),
 			fmt.Sprintf("timeout     : %d min (0=none)", rec.Timeout),
 			fmt.Sprintf("maxFail     : %d", rec.MaxFail),
+			"help        : 使い方",
 			"done        : 録画を開始",
 			"quit        : キャンセル",
 		}
@@ -393,6 +394,25 @@ func selectRecordOptions(base RecordConfig, p5Version, p5Source string) (*Record
 					rec.MaxFail = i
 				}
 			}
+		case "help":
+			fmt.Println()
+			fmt.Println("record options:")
+			fmt.Println()
+			fmt.Println("  fps           frames per second")
+			fmt.Println("  total         frames to record (number or formula like 60*30+140)")
+			fmt.Println("  start         starting frame (frames to skip from 0)")
+			fmt.Println("  codec         vp9 (webm) / h264 (mp4)")
+			fmt.Println("  crf           15-35 (vp9) / 18-28 (h264)")
+			fmt.Println("  cpuUsed       vp9 speed/quality tradeoff (0-5)")
+			fmt.Println("  g             keyframe interval")
+			fmt.Println("  pixelDensity  resolution multiplier")
+			fmt.Println("  p5Version     p5.js version")
+			fmt.Println("  p5Source      p5.js source (cdn / local / auto)")
+			fmt.Println("  timeout       timeout in minutes (0 = none)")
+			fmt.Println("  maxFail       max consecutive failures")
+			fmt.Println()
+			fmt.Print("Press Enter to return...")
+			bufio.NewReader(os.Stdin).ReadString('\n')
 		case "done":
 			return &rec, p5Version, p5Source
 		case "quit":
